@@ -1,0 +1,54 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    background: linear-gradient(to top, #FFE942, #8C0305);
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.nav-left,
+.nav-mid,
+.nav-right {
+    font-family: 'Bebas Neue', sans-serif; /* naay need i chuchu sa index.html */
+    display: flex;
+    align-items: center;
+}
+
+.nav-mid {
+    gap: 2rem;
+    justify-content: center;
+    flex: 1;
+}
+
+.nav-mid h3 {
+    color: #F9FAFB;
+    font-size: 24px;
+}
+
+.nav-right {
+    gap: 1rem;
+}
+
+.navbar button{ 
+    text-align: center;
+    width: 100px;
+    border-radius: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+}
+
+.login {
+    background-color: #1F2937;
+    color: #F9FAFB;
+}
+.signup {
+    background-color: #EB831B;
+    color: #1F2937;
+}
