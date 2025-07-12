@@ -1,0 +1,9 @@
+# backend/ai_functions/prompts/identify_object.prompt
+
+Analyze the image and identify the main subject.
+
+You MUST respond with a single, clean JSON object with two keys:
+1. "object_label": The most common and specific name for the object (e.g., "Computer Mouse", "Field Mouse").
+2. "category_hint": A single, lowercase word for the object's general category (e.g., "technology", "animal", "food", "plant", "place").
+
+Do not add any other text outside the JSON structure.
