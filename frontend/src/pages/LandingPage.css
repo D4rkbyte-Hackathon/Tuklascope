@@ -44,11 +44,11 @@
     font-size: 18px;
 }
 
-.login {
+.navbar-login {
     background-color: #1F2937;
     color: #F9FAFB;
 }
-.signup {
+.navbar-signup {
     background-color: #EB831B;
     color: #1F2937;
 }

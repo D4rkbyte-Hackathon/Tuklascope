@@ -1,6 +1,8 @@
-import "./LandingPage.css"
+import "./LandingPage.css";
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
+    const navigate = useNavigate();
     return (
         <div className = "navbar">
             <div className = "nav-left">
@@ -12,8 +14,8 @@ const LandingPage = () => {
                 <h3>Our Mission</h3>
             </div>
             <div className = "nav-right">
-                <button className = "login"> login </button>
-                <button className = "signup"> signup </button>           
+                <button className = "navbar-login" onClick={() => navigate('/login')}> login </button>
+                <button className = "navbar-signup" onClick={() => navigate('/login?mode=register')}> signup </button>           
             </div>
         </div>
     );
