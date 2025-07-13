@@ -55,6 +55,11 @@ class TutorRequest(BaseModel):
     chat_history: Optional[List[Dict[str, str]]] = None
     object_context: Optional[str] = None
 
+class FullDiscoveryResponse(BaseModel):
+    identification: Dict
+    spark_content: Dict
+    skills: Dict
+
 
 # --- API Endpoints ---
 
@@ -138,3 +143,57 @@ async def get_tutor_response_endpoint(request: TutorRequest):
     if not result:
         raise HTTPException(status_code=500, detail="Failed to get tutor response.")
     return {"response": result}
+
+# dugay kaayo ang three part process, trying if this method is faster
+@app.post("/api/generate-full-discovery", tags=["Z. Combined Endpoints"], response_model=FullDiscoveryResponse)
+async def generate_full_discovery_endpoint(image: UploadFile = File(...)):
+    """
+    Handles the full discovery process with a single API call.
+    1. Identifies the object in the image.
+    2. Generates spark content for the identified object.
+    3. Extracts skills from the spark content.
+    Returns a single JSON object with all results.
+    """
+    temp_dir = "temp_images"
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_path = os.path.join(temp_dir, image.filename)
+
+    try:
+        # Save the uploaded file temporarily
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+
+        # --- STEP 1: IDENTIFY ---
+        id_result = get_identified_object(image_path=temp_path)
+        if not id_result:
+            raise HTTPException(status_code=500, detail="AI failed during identification.")
+
+        # --- STEP 2: SPARK ---
+        grade_level = "Junior High School" # Should eventually come from request
+        spark_result = generate_spark_content(object_info=id_result, grade_level=grade_level)
+        if not spark_result:
+            raise HTTPException(status_code=500, detail="AI failed to generate spark content.")
+
+        # --- STEP 3: SKILLS ---
+        skills_result = get_normalized_stem_skills(spark_content=spark_result)
+        # skills_result can be an empty list, which is valid. Check for None.
+        if skills_result is None:
+            raise HTTPException(status_code=500, detail="AI failed to extract skills.")
+
+        # --- COMBINE AND RETURN ---
+        return {
+            "identification": id_result,
+            "spark_content": spark_result,
+            "skills": {"normalized_skills": skills_result}
+        }
+
+    except Exception as e:
+        # This will catch both our HTTPExceptions and other errors
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(temp_path):
+            os.remove(temp_path)

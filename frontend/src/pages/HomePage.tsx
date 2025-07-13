@@ -1,4 +1,6 @@
 import Navbar from '../components/Navbar';
+import { useState } from 'react';
+import { DiscoveryModal } from '../components/DiscoveryModal'; 
 
 const skillTreeData = [
   {
@@ -159,10 +161,16 @@ const pathfinderGuidance = {
 };
 
 const HomePage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false); //state for modal
+
   return (
     <>
       <Navbar />
       {/* Discover Section */}
+      <DiscoveryModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
       <section
         style={{
           minHeight: '100vh',
@@ -201,22 +209,39 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-          {/* Right Section */}
+          {/* Right Section - UPDATED */}
           <div style={{ minWidth: 480, maxWidth: 540, background: "#fff", borderRadius: 36, boxShadow: "0 8px 32px rgba(0,0,0,0.10)", padding: 48 }}>
-            <div style={{ fontWeight: 700, fontSize: 32, color: "#0B3C6A", textAlign: "center" }}>Start Your Discovery</div>
-            <div style={{ color: "#1F2937", textAlign: "center", marginBottom: 32, marginTop: 12, fontSize: 18 }}>
-              Upload any photo to begin learning!
+            <div style={{ fontWeight: 700, fontSize: 32, color: "#0B3C6A", textAlign: "center" }}>What will you discover today?</div>
+            <div style={{ color: "#1F2937", textAlign: "center", marginBottom: 48, marginTop: 12, fontSize: 18 }}>
+              Upload a photo or use your camera to begin.
             </div>
-            <div style={{ background: "#F5F6FA", borderRadius: 18, height: 140, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 32, border: "1px solid #E5E7EB" }}>
-              <div style={{ fontWeight: 500, fontSize: 22, color: "#1F2937" }}>Drop your photo here</div>
-              <div style={{ color: "#6B7280", fontSize: 16, marginTop: 6 }}>or click to browse from your device</div>
-            </div>
-            <button style={{ width: "100%", background: "#FF6B2C", color: "#fff", fontWeight: 700, fontSize: 22, border: "none", borderRadius: 10, padding: "18px 0", marginBottom: 32, cursor: "pointer" }}>Take Photo</button>
-            <div style={{ color: "#1F2937", fontWeight: 500, fontSize: 18, marginBottom: 12 }}>Recent discoveries:</div>
+            
+            {/* --- SINGLE, UNIFIED BUTTON --- */}
+            <button 
+              onClick={() => setIsModalOpen(true)} 
+              style={{
+                width: "100%", 
+                background: "#FF6B2C", 
+                color: "#fff", 
+                fontWeight: 700, 
+                fontSize: 22,
+                border: "none", 
+                borderRadius: 10, 
+                padding: "24px 0", 
+                cursor: "pointer",
+                transition: "transform 0.2s",
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Start Discovery
+            </button>
+
+            <div style={{ color: "#1F2937", fontWeight: 500, fontSize: 18, marginBottom: 12, marginTop: 48 }}>Recent discoveries:</div>
             <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=56&h=56" alt="recent1" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
-              <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=56&h=56" alt="recent2" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
-              <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=56&h=56" alt="recent3" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+               <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=56&h=56" alt="recent1" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+               <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=56&h=56" alt="recent2" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+               <div style={{ width: 56, height: 56, borderRadius: 10, background: "#F3F4F6", overflow: "hidden" }}><img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=56&h=56" alt="recent3" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
             </div>
           </div>
         </div>

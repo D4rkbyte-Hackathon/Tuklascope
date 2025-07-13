@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import ChatbotButton from './components/ChatbotButton';
 import LeaderboardPage from './components/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import SparkResultsPage from "./pages/SparkResultsPage";
 
 function AppRoutes() {
   const location = useLocation();
@@ -16,6 +17,7 @@ function AppRoutes() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/spark-results" element={<SparkResultsPage />} />
       </Routes>
       {location.pathname === '/home' && <ChatbotButton />}
     </>
