@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/LoginRegister.css';
 // import CardSwap from '../components/CardSwap'; // Skipped for now
-
+import {auth, db, createUserWithEmailAndPassword, setDoc, doc, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signInWithPopup} from '../database/firebase';
 // --- Firebase imports removed ---
 
 const LoginPage = () => {
@@ -40,18 +40,62 @@ const LoginPage = () => {
   };
 
   // --- Placeholder login function ---
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Replace with real login logic later
-    alert(`Login attempted for ${formData.email}`);
-    navigate('/home');
+    try{
+      const {email, password} = formData;
+      await signInWithEmailAndPassword(auth, email, password);
+      alert('Login successful!');
+      navigate('/home');
+    }
+    catch(error: any){
+      alert('Login failed:'+ error.message);
+    }
+    
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Save user data to Firestore
+      await setDoc(doc(db, 'Tuklascope-user', user.uid), {
+        name: user.displayName,
+        email: user.email,
+        createdAt: new Date().toISOString(),
+      });
+
+      alert('Google sign-in successful!');
+      navigate('/home');
+    } catch (error: any) {
+      alert(`Google sign-in failed: ${error.message}`);
+    }
+  }
+
   // --- Placeholder register function ---
-  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Replace with real register logic later
-    alert(`Register attempted for ${formData.email}`);
+   try {
+    const { email, password, name, surname, city, country, education } = formData;
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    await setDoc(doc(db, 'Tuklascope-user', user.uid), {
+      name,
+      surname,
+      email,
+      city,
+      country,
+      education,
+      createdAt: new Date().toISOString()
+    });
+
+    alert('Account created!');
     setIsRegister(false);
     setFormData({
       name: '',
@@ -62,6 +106,9 @@ const LoginPage = () => {
       country: '',
       education: '',
     });
+  } catch (error: any) {
+    alert(`Registration failed: ${error.message}`);
+  }
   };
 
   return (
@@ -112,7 +159,7 @@ const LoginPage = () => {
 
             <div className="login__social">
               <p className="login__social-title">Or sign in with</p>
-              <button type="button" className="google-signin-button">
+              <button type="button" className="google-signin-button" onClick={handleGoogleSignIn}>
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="google-icon" />
                 <span>Sign in with Google</span>
               </button>
