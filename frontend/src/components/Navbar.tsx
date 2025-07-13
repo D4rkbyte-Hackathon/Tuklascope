@@ -38,6 +38,9 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Home', path: '/home' },
+    { label: 'Skill Tree', path: '/skill-tree' },
+    { label: 'Pathways', path: '/pathways' },
+    { label: 'Pathfinder', path: '/pathfinder' },
     { label: 'Profile', path: '/profile' },
     { label: 'Leaderboard', path: '/leaderboard' }
   ];

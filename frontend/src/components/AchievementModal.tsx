@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { auth, saveUserSkills } from '../database/firebase';
 
 interface Skill {
   skill_name: string;
@@ -13,6 +14,22 @@ interface AchievementModalProps {
 export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onClose }) => {
   // fixed to 25 first-pwede railisan
   const XP_PER_SKILL = 25;
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Save skills to database when modal opens
+  useEffect(() => {
+    const saveSkills = async () => {
+      if (auth.currentUser) {
+        setIsSaving(true);
+        const success = await saveUserSkills(auth.currentUser.uid, skills);
+        setSaveSuccess(success);
+        setIsSaving(false);
+      }
+    };
+    
+    saveSkills();
+  }, [skills]);
 
   return (
     <div style={{
@@ -37,7 +54,9 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onCl
         `}</style>
         
         <h2 style={{ fontSize: 36, margin: 0, color: '#FFD700' }}>🏆 Achievement Unlocked!</h2>
-        <p style={{ fontSize: 18, opacity: 0.9, marginTop: 8 }}>You've gained new knowledge from your discovery!</p>
+        <p style={{ fontSize: 18, opacity: 0.9, marginTop: 8 }}>
+          {isSaving ? 'Saving your new skills...' : 'You\'ve gained new knowledge from your discovery!'}
+        </p>
         
         <div style={{ margin: '32px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {skills.map(skill => (

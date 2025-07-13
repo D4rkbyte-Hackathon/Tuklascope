@@ -59,7 +59,7 @@ const ErrorDisplay = ({ message, onRetry }: { message: string, onRetry: () => vo
 
 const SparkResultsPage = () => {
   const location = useLocation();
-  const { image } = location.state || {}; // The base64 image string
+  const { image, recentDiscovery } = location.state || {}; // The base64 image string or recent discovery
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,8 +98,23 @@ const SparkResultsPage = () => {
       const data: FullDiscoveryResponse = await response.json();
       setFullResult(data);
       if (data.skills?.normalized_skills?.length > 0) {
-            setShowAchievements(true);
-        }
+        setShowAchievements(true);
+        // Removed: Save skills to localStorage
+        // localStorage.setItem('tuklascope_skills', JSON.stringify(data.skills.normalized_skills));
+        // localStorage.setItem('tuklascope_new_discovery', 'true');
+      }
+      // Removed: Save full discovery to recent discoveries
+      // let recent = JSON.parse(localStorage.getItem('tuklascope_recent_discoveries') || '[]');
+      // const objectLabel = data?.identification?.object_label || '';
+      // recent = recent.filter((d: any) => d.image !== image || (d.fullResult?.identification?.object_label !== objectLabel));
+      // const newEntry = {
+      //   id: Date.now(),
+      //   image,
+      //   timestamp: new Date().toISOString(),
+      //   fullResult: data
+      // };
+      // const updated = [newEntry, ...recent].slice(0, 5);
+      // localStorage.setItem('tuklascope_recent_discoveries', JSON.stringify(updated));
 
     } catch (err: any) {
       console.error("Full discovery API call failed:", err);
@@ -110,8 +125,14 @@ const SparkResultsPage = () => {
   };
 
   useEffect(() => {
+    if (recentDiscovery) {
+      setFullResult(recentDiscovery.fullResult);
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
     fetchFullDiscovery();
-  }, [image]);
+  }, [image, recentDiscovery]);
 
   const renderStringWithMarkdown = (text: string) => {
     return text.split('\n').map((line, index) => {
@@ -156,7 +177,7 @@ const SparkResultsPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
             {/* --- IMAGE (Centered) --- */}
             <div style={{ width: '100%', maxWidth: 500 }}>
-                {image && <img src={image} alt="Your discovery" style={{ width: '100%', borderRadius: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}/>}
+                {image && <img src={recentDiscovery ? recentDiscovery.image : image} alt="Your discovery" style={{ width: '100%', borderRadius: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}/>}
             </div>
 
             {/* --- IDENTIFICATION PANEL (Below Image) --- */}

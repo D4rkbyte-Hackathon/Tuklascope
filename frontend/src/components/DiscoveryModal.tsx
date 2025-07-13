@@ -16,6 +16,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
   const [view, setView] = useState<ModalView>('choice');
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraFacing, setCameraFacing] = useState<'environment' | 'user'>('environment');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -37,7 +38,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
   const startCamera = async () => {
     stopCamera();
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: cameraFacing } });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -46,6 +47,15 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
     } catch (err) {
       console.error("Camera access error:", err);
       setCameraError("Camera access was denied. Please enable it in your browser settings.");
+    }
+  };
+
+  const toggleCamera = async () => {
+    const newFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+    setCameraFacing(newFacing);
+    // Restart camera with new facing mode
+    if (view === 'camera') {
+      await startCamera();
     }
   };
 
@@ -120,19 +130,60 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
   );
 
   const renderCameraView = () => (
-     <div style={{ textAlign: 'center', width: '100%' }}>
-      <h2 style={{ color: '#0B3C6A', fontSize: 32, marginBottom: 24 }}>Align and Capture</h2>
+    <div style={{ textAlign: 'center', width: '100%' }}>
+      <h2 style={{ color: '#0B3C6A', fontSize: 32, marginBottom: 24 }}>Take a Photo</h2>
       {cameraError ? (
         <div style={{ padding: '20px', color: '#DC2626', background: '#FEF2F2', borderRadius: 8 }}>{cameraError}</div>
       ) : (
-        <video ref={videoRef} autoPlay playsInline style={{ width: '100%', maxWidth: 500, borderRadius: 16, border: '2px solid #E5E7EB', background: '#000' }}/>
+        <video ref={videoRef} autoPlay playsInline style={{ width: '100%', maxWidth: 500, borderRadius: 16, border: '2px solid #E5E7EB', background: '#000', aspectRatio: '16/9', objectFit: 'cover' }}/>
       )}
-      <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 32 }}>
-        <button onClick={handleCapture} disabled={!!cameraError} style={{ background: '#FF6B2C', color: '#fff', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 10, padding: '16px 32px', cursor: 'pointer', opacity: cameraError ? 0.5 : 1 }}>
-          Take Picture
+      <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 32 }}>
+        <button
+          onClick={toggleCamera}
+          style={{
+            background: '#fff',
+            border: '2px solid #E5E7EB',
+            color: '#0B3C6A',
+            borderRadius: '50%',
+            width: 56,
+            height: 56,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 24,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+          title={cameraFacing === 'environment' ? 'Switch to Front Camera' : 'Switch to Back Camera'}
+        >
+          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
         </button>
-        <button onClick={() => setView('choice')} style={{ background: '#E5E7EB', color: '#1F2937', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 10, padding: '16px 32px', cursor: 'pointer' }}>
-          Cancel
+        <button
+          onClick={handleCapture}
+          disabled={!!cameraError}
+          style={{
+            background: '#FF6B2C',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '50%',
+            width: 56,
+            height: 56,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 24,
+            cursor: cameraError ? 'not-allowed' : 'pointer',
+            opacity: cameraError ? 0.5 : 1,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}
+          title="Take Photo"
+        >
+          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="12" cy="12" r="8" stroke="white" strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="4" fill="white" />
+          </svg>
         </button>
       </div>
     </div>

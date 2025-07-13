@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import Navbar from '../components/Navbar';
 import ChatbotButton from '../components/ChatbotButton';
 import { getAuth , doc, getDoc,  db} from '../database/firebase';
+import { useNavigate } from 'react-router-dom';
+import { RecentDiscoveries, RecentDiscovery } from '../components/RecentDiscoveries';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState<{
@@ -37,6 +39,10 @@ const ProfilePage = () => {
     }
      fetchUserData();
   }, []);
+  const navigate = useNavigate();
+  const handleRecentClick = (discovery: RecentDiscovery) => {
+    navigate('/spark-results', { state: { recentDiscovery: discovery } });
+  };
   return (
     <>
       <Navbar />
@@ -83,7 +89,7 @@ const ProfilePage = () => {
               </div>
               <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minHeight: 120 }}>
                 <div style={{ fontWeight: 700, fontSize: 26, color: '#1F2937', marginBottom: 12 }}>Recent Discoveries</div>
-                <div style={{ color: '#2563EB', fontSize: 17, marginTop: 24 }}>No discoveries yet. Start exploring!</div>
+                <RecentDiscoveries onSelect={handleRecentClick} />
               </div>
             </div>
           </div>
