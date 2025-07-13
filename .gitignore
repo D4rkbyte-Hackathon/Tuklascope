@@ -10,9 +10,6 @@ dist/
 build/
 .DS_Store
 
-# Google Cloud / Secrets
-*.json
-
 # IDE / OS files
 .vscode/
 .idea/
