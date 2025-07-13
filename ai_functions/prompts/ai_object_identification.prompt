@@ -1,5 +1,3 @@
-# backend/ai_functions/prompts/identify_object.prompt
-
 Analyze the image and identify the main subject.
 
 You MUST respond with a single, clean JSON object with two keys:
