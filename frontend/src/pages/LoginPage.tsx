@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/LoginRegister.css';
 // import CardSwap from '../components/CardSwap'; // Skipped for now
-import {auth, db, createUserWithEmailAndPassword, setDoc, doc, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signInWithPopup} from '../database/firebase';
+import {auth, db, createUserWithEmailAndPassword, setDoc, doc, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signInWithPopup, getDoc} from '../database/firebase';
 // --- Firebase imports removed ---
 
 const LoginPage = () => {
@@ -61,12 +61,21 @@ const LoginPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Save user data to Firestore
-      await setDoc(doc(db, 'Tuklascope-user', user.uid), {
-        name: user.displayName,
-        email: user.email,
-        createdAt: new Date().toISOString(),
-      });
+      // Check if user already exists in Firestore
+      const userDoc = await getDoc(doc(db, 'Tuklascope-user', user.uid));
+      
+      if (!userDoc.exists()) {
+        // Save user data to Firestore for new Google users
+        await setDoc(doc(db, 'Tuklascope-user', user.uid), {
+          name: user.displayName?.split(' ')[0] || '',
+          surname: user.displayName?.split(' ').slice(1).join(' ') || '',
+          email: user.email,
+          education: '', // Will be empty for Google users, they can update later
+          city: '',
+          country: '',
+          createdAt: new Date().toISOString(),
+        });
+      }
 
       alert('Google sign-in successful!');
       navigate('/home');

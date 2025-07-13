@@ -17,7 +17,8 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   signInWithCredential,
-  deleteUser
+  deleteUser,
+  signOut
 } from "firebase/auth";
 import { 
   getFirestore,
@@ -68,6 +69,7 @@ export {
   EmailAuthProvider,
   deleteUser,
   signInWithCredential,
+  signOut,
   doc,
   setDoc,
   getDocs,
@@ -160,6 +162,66 @@ export const getUserSkillsRealtime = (userId: string, callback: (skills: any) =>
       callback(doc.data().skills || {});
     } else {
       callback({});
+    }
+  });
+};
+
+// User Discoveries Management Functions
+export const saveUserDiscovery = async (userId: string, discovery: {
+  id: number;
+  image: string;
+  timestamp: string;
+  fullResult: any;
+}) => {
+  try {
+    const userDiscoveriesRef = doc(db, 'user_discoveries', userId);
+    const existingDoc = await getDoc(userDiscoveriesRef);
+    
+    if (existingDoc.exists()) {
+      // Update existing discoveries
+      const existingDiscoveries: any[] = existingDoc.data().discoveries || [];
+      
+      // Remove any existing discovery with the same image to avoid duplicates
+      const filteredDiscoveries = existingDiscoveries.filter(d => d.image !== discovery.image);
+      
+      // Add new discovery at the beginning
+      const updatedDiscoveries = [discovery, ...filteredDiscoveries].slice(0, 10); // Keep only 10 most recent
+      
+      await updateDoc(userDiscoveriesRef, { discoveries: updatedDiscoveries });
+    } else {
+      // Create new user discoveries document
+      await setDoc(userDiscoveriesRef, { discoveries: [discovery] });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving user discovery:', error);
+    return false;
+  }
+};
+
+export const getUserDiscoveries = async (userId: string) => {
+  try {
+    const userDiscoveriesRef = doc(db, 'user_discoveries', userId);
+    const docSnap = await getDoc(userDiscoveriesRef);
+    
+    if (docSnap.exists()) {
+      return docSnap.data().discoveries || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error getting user discoveries:', error);
+    return [];
+  }
+};
+
+export const getUserDiscoveriesRealtime = (userId: string, callback: (discoveries: any[]) => void) => {
+  const userDiscoveriesRef = doc(db, 'user_discoveries', userId);
+  return onSnapshot(userDiscoveriesRef, (doc) => {
+    if (doc.exists()) {
+      callback(doc.data().discoveries || []);
+    } else {
+      callback([]);
     }
   });
 };

@@ -1,6 +1,8 @@
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useChatbotActions } from '../hooks/useChatbotActions';
-import { useState, useEffect } from 'react';
+import { useUserSkills } from '../hooks/useUserSkills';
+import { useUserEducation } from '../hooks/useUserEducation';
 
 // Types for the API response
 interface PathfinderRecommendation {
@@ -28,31 +30,38 @@ interface PathfinderResponse {
 
 const PathfinderPage = () => {
   const { openChatbot } = useChatbotActions();
+  const { userSkills, loading: skillsLoading } = useUserSkills();
+  const { education, loading: educationLoading } = useUserEducation();
   const [pathfinderData, setPathfinderData] = useState<PathfinderResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get skills from localStorage
+  // Get skills from Firebase instead of localStorage
   const getUserSkillsForAPI = () => {
-    const stored = localStorage.getItem('tuklascope_skills');
-    const skills = stored ? JSON.parse(stored) : [];
     const skillsObject: Record<string, number> = {};
-    skills.forEach((skill: any) => {
-      skillsObject[skill.skill_name] = 75; // Default mastery for demo
+    Object.values(userSkills).forEach((skill: any) => {
+      skillsObject[skill.skill_name] = skill.mastery_level || 75; // Use actual mastery level
     });
     return skillsObject;
   };
 
-  const mockGradeLevel = "Junior High School";
-
   useEffect(() => {
-    const newDiscovery = localStorage.getItem('tuklascope_new_discovery') === 'true';
-    if (!newDiscovery) {
-      // Try to load last result from localStorage
-      const lastResult = localStorage.getItem('tuklascope_pathfinder_result');
-      if (lastResult) {
-        setPathfinderData(JSON.parse(lastResult));
-      }
+    // Only proceed if we have skills data and education data
+    if (skillsLoading || educationLoading) return;
+
+    const skills = Object.values(userSkills);
+    if (skills.length === 0) {
+      // No skills yet, show empty state
+      setLoading(false);
+      return;
+    }
+
+    // Try to load last result from localStorage, but only if education level hasn't changed
+    const lastResult = localStorage.getItem('tuklascope_pathfinder_result');
+    const lastEducation = localStorage.getItem('tuklascope_pathfinder_education');
+    
+    if (lastResult && lastEducation === education) {
+      setPathfinderData(JSON.parse(lastResult));
       setLoading(false);
       return;
     }
@@ -69,7 +78,7 @@ const PathfinderPage = () => {
           },
           body: JSON.stringify({
             user_skills: getUserSkillsForAPI(),
-            grade_level: mockGradeLevel
+            grade_level: education || 'Junior High (Grades 7-10)' // Fallback to default if no education level
           }),
         });
 
@@ -79,10 +88,9 @@ const PathfinderPage = () => {
 
         const data = await response.json();
         setPathfinderData(data);
-        // Save result to localStorage
+        // Save result to localStorage along with education level
         localStorage.setItem('tuklascope_pathfinder_result', JSON.stringify(data));
-        // Clear the new discovery flag
-        localStorage.setItem('tuklascope_new_discovery', 'false');
+        localStorage.setItem('tuklascope_pathfinder_education', education || '');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pathfinder data');
         setPathfinderData(null);
@@ -92,7 +100,7 @@ const PathfinderPage = () => {
     };
 
     fetchPathfinderData();
-  }, []);
+  }, [userSkills, skillsLoading, education, educationLoading]);
 
   if (loading) {
     return (
@@ -166,6 +174,50 @@ const PathfinderPage = () => {
   }
 
   if (!pathfinderData) {
+    // Check if user has no skills yet
+    const skills = Object.values(userSkills);
+    if (skills.length === 0) {
+      return (
+        <>
+          <Navbar />
+          <section
+            style={{
+              minHeight: '100vh',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#F8FAFC',
+              padding: '64px 0',
+            }}
+          >
+            <div style={{ textAlign: 'center', maxWidth: 600 }}>
+              <div style={{ fontSize: 32, color: '#0B3C6A', marginBottom: 16, fontWeight: 700 }}>
+                Start Your STEM Journey!
+              </div>
+              <div style={{ color: '#1F2937', marginBottom: 32, fontSize: 18 }}>
+                Complete some discoveries first to get personalized career and academic guidance.
+              </div>
+              <button
+                onClick={() => openChatbot()}
+                style={{
+                  background: '#FF6B2C',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '16px 32px',
+                  fontSize: 18,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Start Discovery
+              </button>
+            </div>
+          </section>
+        </>
+      );
+    }
     return null;
   }
 
@@ -202,7 +254,7 @@ const PathfinderPage = () => {
             marginBottom: 64,
             marginTop: 8
           }}>
-            {mockGradeLevel} Student
+            {education || 'Junior High (Grades 7-10)'} Student
           </div>
 
           {/* Strongest Fields Section */}

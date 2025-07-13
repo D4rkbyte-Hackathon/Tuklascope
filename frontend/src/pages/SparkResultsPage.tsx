@@ -3,6 +3,9 @@ import { useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { AchievementModal } from '../components/AchievementModal';
 import ReactMarkdown from 'react-markdown'; //para formatting atong mga double asterisks (**)
+import { getAuth } from '../database/firebase';
+import { saveUserDiscovery } from '../database/firebase';
+import { useUserEducation } from '../hooks/useUserEducation';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -60,6 +63,7 @@ const ErrorDisplay = ({ message, onRetry }: { message: string, onRetry: () => vo
 const SparkResultsPage = () => {
   const location = useLocation();
   const { image, recentDiscovery } = location.state || {}; // The base64 image string or recent discovery
+  const { education, loading: educationLoading } = useUserEducation();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,39 +86,91 @@ const SparkResultsPage = () => {
       const blob = await fetchRes.blob();
       const file = new File([blob], "discovery.png", { type: "image/png" });
       
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch(`${API_URL}/api/generate-full-discovery`, {
+      // Step 1: Identify the object
+      const identifyFormData = new FormData();
+      identifyFormData.append('image', file);
+      
+      const identifyResponse = await fetch(`${API_URL}/api/identify`, {
         method: 'POST',
-        body: formData,
+        body: identifyFormData,
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || `Server returned an error: ${response.status}`);
+      if (!identifyResponse.ok) {
+        const errData = await identifyResponse.json();
+        throw new Error(errData.detail || `Identification failed: ${identifyResponse.status}`);
       }
 
-      const data: FullDiscoveryResponse = await response.json();
+      const identificationResult = await identifyResponse.json();
+
+      // Step 2: Generate spark content with grade level
+      const sparkResponse = await fetch(`${API_URL}/api/spark`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          object_info: identificationResult,
+          grade_level: education || 'Junior High School'
+        }),
+      });
+
+      if (!sparkResponse.ok) {
+        const errData = await sparkResponse.json();
+        throw new Error(errData.detail || `Spark generation failed: ${sparkResponse.status}`);
+      }
+
+      const sparkResult = await sparkResponse.json();
+
+      // Step 3: Extract skills
+      const skillsResponse = await fetch(`${API_URL}/api/skills`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          spark_content: sparkResult
+        }),
+      });
+
+      if (!skillsResponse.ok) {
+        const errData = await skillsResponse.json();
+        throw new Error(errData.detail || `Skills extraction failed: ${skillsResponse.status}`);
+      }
+
+      const skillsResult = await skillsResponse.json();
+
+      // Combine all results
+      const data: FullDiscoveryResponse = {
+        identification: identificationResult,
+        spark_content: sparkResult,
+        skills: skillsResult
+      };
+
       setFullResult(data);
       if (data.skills?.normalized_skills?.length > 0) {
         setShowAchievements(true);
-        // Removed: Save skills to localStorage
-        // localStorage.setItem('tuklascope_skills', JSON.stringify(data.skills.normalized_skills));
-        // localStorage.setItem('tuklascope_new_discovery', 'true');
       }
-      // Removed: Save full discovery to recent discoveries
-      // let recent = JSON.parse(localStorage.getItem('tuklascope_recent_discoveries') || '[]');
-      // const objectLabel = data?.identification?.object_label || '';
-      // recent = recent.filter((d: any) => d.image !== image || (d.fullResult?.identification?.object_label !== objectLabel));
-      // const newEntry = {
-      //   id: Date.now(),
-      //   image,
-      //   timestamp: new Date().toISOString(),
-      //   fullResult: data
-      // };
-      // const updated = [newEntry, ...recent].slice(0, 5);
-      // localStorage.setItem('tuklascope_recent_discoveries', JSON.stringify(updated));
+      
+      // Save discovery to Firebase
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const objectLabel = data?.identification?.object_label || '';
+        const newEntry = {
+          id: Date.now(),
+          image,
+          timestamp: new Date().toISOString(),
+          fullResult: data
+        };
+        try {
+          await saveUserDiscovery(currentUser.uid, newEntry);
+        } catch (error) {
+          console.error('Failed to save discovery:', error);
+          // Don't show error to user as the discovery was still successful
+        }
+      } else {
+        console.log('User not logged in - discovery not saved to profile');
+      }
 
     } catch (err: any) {
       console.error("Full discovery API call failed:", err);
@@ -131,8 +187,11 @@ const SparkResultsPage = () => {
       setError(null);
       return;
     }
-    fetchFullDiscovery();
-  }, [image, recentDiscovery]);
+    // Only proceed if education data is loaded
+    if (!educationLoading) {
+      fetchFullDiscovery();
+    }
+  }, [image, recentDiscovery, education, educationLoading]);
 
   const renderStringWithMarkdown = (text: string) => {
     return text.split('\n').map((line, index) => {
