@@ -1,8 +1,42 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Navbar from '../components/Navbar';
 import ChatbotButton from '../components/ChatbotButton';
+import { getAuth , doc, getDoc,  db} from '../database/firebase';
 
 const ProfilePage = () => {
+  const [userData, setUserData] = useState<{
+      name: string;
+      surname: string;
+      email: string;
+      education: string;
+      city: string;
+      country: string;
+    } | null>(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+      try{
+        const userDoc = await getDoc(doc(db, 'Tuklascope-user', currentUser.uid));
+        if (userDoc.exists()){
+          const data = userDoc.data();
+          setUserData({
+          name: data.name || '',
+          surname: data.surname || '',
+          email: data.email || currentUser.email || '',
+          education: data.education || '',
+          city: data.city || '',
+          country: data.country || '',
+          });
+        }
+      }
+      catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    }
+     fetchUserData();
+  }, []);
   return (
     <>
       <Navbar />
@@ -16,7 +50,7 @@ const ProfilePage = () => {
             <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: 32 }}>
               <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 320 }}>
                 <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#FF6B2C', color: '#fff', fontWeight: 700, fontSize: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>J</div>
-                <div style={{ fontWeight: 700, fontSize: 24, color: '#0B3C6A', marginBottom: 2 }}>juan_dela_cruz</div>
+                <div style={{ fontWeight: 700, fontSize: 24, color: '#0B3C6A', marginBottom: 2 }}>{userData ? `${userData.name} ${userData.surname}` : 'Loading...'}</div>
                 <div style={{ color: '#888', fontSize: 16, marginBottom: 18 }}>Jhs Student</div>
                 <div style={{ color: '#2563EB', fontWeight: 700, fontSize: 18, marginBottom: 2 }}>Total Points</div>
                 <div style={{ color: '#FF6B2C', fontWeight: 800, fontSize: 32, marginBottom: 8 }}>2456</div>
