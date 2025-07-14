@@ -145,8 +145,8 @@ async def get_tutor_response_endpoint(request: TutorRequest):
     return {"response": result}
 
 # dugay kaayo ang three part process, trying if this method is faster
-@app.post("/api/generate-full-discovery", tags=["Z. Combined Endpoints"], response_model=FullDiscoveryResponse)
-async def generate_full_discovery_endpoint(image: UploadFile = File(...)):
+@app.post("/api/generate-full-discovery", tags=["6. Combined Endpoints"], response_model=FullDiscoveryResponse)
+async def generate_full_discovery_endpoint(image: UploadFile = File(...), grade_level: str = Form("Junior High School")):
     """
     Handles the full discovery process with a single API call.
     1. Identifies the object in the image.
@@ -169,7 +169,6 @@ async def generate_full_discovery_endpoint(image: UploadFile = File(...)):
             raise HTTPException(status_code=500, detail="AI failed during identification.")
 
         # --- STEP 2: SPARK ---
-        grade_level = "Junior High School" # Should eventually come from request
         spark_result = generate_spark_content(object_info=id_result, grade_level=grade_level)
         if not spark_result:
             raise HTTPException(status_code=500, detail="AI failed to generate spark content.")
