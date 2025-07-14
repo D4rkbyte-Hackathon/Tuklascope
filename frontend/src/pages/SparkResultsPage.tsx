@@ -272,6 +272,107 @@ const SparkResultsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Mobile-specific styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .spark-results-container {
+            padding: 20px 16px !important;
+          }
+          
+          .spark-results-content {
+            gap: 20px !important;
+          }
+          
+          .spark-image {
+            margin-bottom: 16px !important;
+          }
+          
+          .spark-image img {
+            border-radius: 20px !important;
+          }
+          
+          .spark-identification {
+            padding: 16px 20px !important;
+            margin-bottom: 16px !important;
+          }
+          
+          .spark-identification p {
+            font-size: 14px !important;
+          }
+          
+          .spark-identification h2 {
+            font-size: 24px !important;
+            line-height: 1.2 !important;
+          }
+          
+          .spark-tabs {
+            flex-wrap: wrap !important;
+          }
+          
+          .spark-tab-button {
+            padding: 12px !important;
+            font-size: 14px !important;
+            min-height: 44px !important;
+          }
+          
+          .spark-content {
+            padding: 20px !important;
+          }
+          
+          .spark-content > div {
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+          }
+          
+          .spark-button {
+            padding: 16px 40px !important;
+            font-size: 16px !important;
+            min-height: 44px !important;
+            width: 100% !important;
+            max-width: 300px !important;
+          }
+          
+          .loading-indicator p {
+            font-size: 16px !important;
+            text-align: center !important;
+          }
+          
+          .error-display {
+            padding: 24px 20px !important;
+            margin: 16px !important;
+          }
+          
+          .error-display h3 {
+            font-size: 18px !important;
+            margin-bottom: 12px !important;
+          }
+          
+          .error-display p {
+            font-size: 14px !important;
+            word-break: break-word !important;
+          }
+          
+          .error-display button {
+            font-size: 14px !important;
+            min-height: 44px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .spark-identification h2 {
+            font-size: 20px !important;
+          }
+          
+          .spark-content > div {
+            font-size: 14px !important;
+          }
+          
+          .spark-button {
+            font-size: 14px !important;
+          }
+        }
+      `}</style>
     </>
   );
 };

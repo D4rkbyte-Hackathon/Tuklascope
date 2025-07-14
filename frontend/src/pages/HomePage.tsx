@@ -246,6 +246,175 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Mobile-specific styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .homepage-flex {
+            flex-direction: column !important;
+            gap: 32px !important;
+            padding: 0 16px !important;
+          }
+          
+          .homepage-left {
+            width: 100% !important;
+            text-align: center !important;
+          }
+          
+          .homepage-left h1 {
+            font-size: 2.5rem !important;
+            margin-bottom: 24px !important;
+          }
+          
+          .homepage-left p {
+            font-size: 18px !important;
+            margin-bottom: 32px !important;
+            line-height: 1.5 !important;
+          }
+          
+          .homepage-left > div {
+            padding: 24px 20px !important;
+            border-radius: 20px !important;
+            margin-bottom: 32px !important;
+          }
+          
+          .homepage-left > div > div:first-child {
+            font-size: 18px !important;
+          }
+          
+          .homepage-left > div > div:nth-child(2) {
+            font-size: 16px !important;
+            margin-bottom: 16px !important;
+            line-height: 1.4 !important;
+          }
+          
+          .homepage-left button {
+            padding: 12px 20px !important;
+            font-size: 16px !important;
+            min-height: 44px !important;
+            width: 100% !important;
+            max-width: 300px !important;
+          }
+          
+          .homepage-right {
+            width: 100% !important;
+            min-width: auto !important;
+            border-radius: 24px !important;
+            padding: 32px 24px !important;
+            text-align: center !important;
+          }
+          
+          .homepage-right > div:first-child {
+            font-size: 24px !important;
+            margin-bottom: 12px !important;
+          }
+          
+          .homepage-right > div:nth-child(2) {
+            font-size: 16px !important;
+            margin-bottom: 32px !important;
+            line-height: 1.4 !important;
+          }
+          
+          .homepage-right button {
+            font-size: 18px !important;
+            padding: 20px 0 !important;
+            min-height: 60px !important;
+            margin-bottom: 32px !important;
+          }
+          
+          .homepage-right > div:last-child {
+            font-size: 16px !important;
+            margin-bottom: 16px !important;
+            text-align: left !important;
+          }
+          
+          section:first-of-type {
+            padding: 20px 16px !important;
+          }
+          
+          section:last-of-type {
+            padding: 48px 16px !important;
+          }
+          
+          section:last-of-type h2 {
+            font-size: 28px !important;
+          }
+          
+          section:last-of-type > div > div:nth-child(2) {
+            font-size: 16px !important;
+            margin-bottom: 40px !important;
+            line-height: 1.5 !important;
+          }
+          
+          section:last-of-type > div > div:last-child {
+            flex-direction: column !important;
+            gap: 20px !important;
+            max-width: 400px !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div {
+            padding: 24px 20px !important;
+            width: 100% !important;
+            min-height: 120px !important;
+            border-radius: 20px !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div > div:first-child {
+            width: 60px !important;
+            height: 60px !important;
+            margin-bottom: 16px !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div > div:first-child > span {
+            font-size: 24px !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div h3 {
+            font-size: 20px !important;
+            margin-bottom: 8px !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div p {
+            font-size: 14px !important;
+            margin-bottom: 16px !important;
+            line-height: 1.4 !important;
+          }
+          
+          section:last-of-type > div > div:last-child > div > div:last-child {
+            font-size: 16px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .homepage-left h1 {
+            font-size: 2rem !important;
+          }
+          
+          .homepage-left p {
+            font-size: 16px !important;
+          }
+          
+          .homepage-right > div:first-child {
+            font-size: 20px !important;
+          }
+          
+          .homepage-right > div:nth-child(2) {
+            font-size: 14px !important;
+          }
+          
+          .homepage-right button {
+            font-size: 16px !important;
+          }
+          
+          section:last-of-type h2 {
+            font-size: 24px !important;
+          }
+          
+          section:last-of-type > div > div:nth-child(2) {
+            font-size: 14px !important;
+          }
+        }
+      `}</style>
     </>
   );
 };

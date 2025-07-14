@@ -222,6 +222,123 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
         </button>
         {renderView()}
       </div>
+
+      {/* Mobile-specific styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .discovery-modal-overlay {
+            padding: 16px !important;
+          }
+          
+          .discovery-modal-content {
+            border-radius: 20px !important;
+            padding: 24px !important;
+            max-width: 600px !important;
+            max-height: 90vh !important;
+            overflow: auto !important;
+          }
+          
+          .discovery-modal-content h2 {
+            font-size: 24px !important;
+            margin-bottom: 32px !important;
+            line-height: 1.2 !important;
+          }
+          
+          .discovery-modal-content > div:last-child {
+            flex-direction: column !important;
+            gap: 20px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div {
+            width: 100% !important;
+            padding: 32px 20px !important;
+            min-height: 120px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div h3 {
+            font-size: 18px !important;
+            margin-bottom: 8px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div p {
+            font-size: 14px !important;
+            margin: 0 !important;
+          }
+          
+          .discovery-modal-content button[onclick*="handleClose"] {
+            top: 16px !important;
+            right: 16px !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            transition: background-color 0.2s !important;
+          }
+          
+          .discovery-modal-content button[onclick*="handleClose"]:hover {
+            background-color: #f3f4f6 !important;
+          }
+          
+          .discovery-modal-content video {
+            margin-bottom: 20px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div:last-child {
+            gap: 24px !important;
+            margin-top: 20px !important;
+            flex-wrap: wrap !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div:last-child button {
+            width: 56px !important;
+            height: 56px !important;
+            min-width: 56px !important;
+            min-height: 56px !important;
+          }
+          
+          .discovery-modal-content img {
+            max-height: 50vh !important;
+            margin-bottom: 20px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div:last-child {
+            flex-direction: column !important;
+            gap: 16px !important;
+            margin-top: 20px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div:last-child button {
+            width: 100% !important;
+            padding: 16px 24px !important;
+            min-height: 48px !important;
+            font-size: 16px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .discovery-modal-content h2 {
+            font-size: 20px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div h3 {
+            font-size: 16px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div p {
+            font-size: 12px !important;
+          }
+          
+          .discovery-modal-content > div:last-child > div:last-child button {
+            font-size: 14px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
