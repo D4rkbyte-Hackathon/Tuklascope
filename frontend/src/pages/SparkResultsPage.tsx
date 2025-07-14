@@ -3,8 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { AchievementModal } from '../components/AchievementModal';
 import ReactMarkdown from 'react-markdown'; //para formatting atong mga double asterisks (**)
-import { getAuth } from '../database/firebase';
-import { saveUserDiscovery } from '../database/firebase';
+import { getAuth, saveUserDiscovery, updateUserStats, saveUserSkills } from '../database/firebase';
 import { useUserEducation } from '../hooks/useUserEducation';
 import { DiscoveryModal } from '../components/DiscoveryModal';
 
@@ -129,12 +128,22 @@ const SparkResultsPage = () => {
           timestamp: new Date().toISOString(),
           fullResult: data
         };
+        
         try {
           await saveUserDiscovery(currentUser.uid, newEntry);
         } catch (error) {
           console.error('Failed to save discovery:', error);
           // Don't show error to user as the discovery was still successful
         }
+
+        //save the skills (this will also add points for skills)
+        if (data.skills?.normalized_skills) {
+          await saveUserSkills(currentUser.uid, data.skills.normalized_skills);
+        }
+
+        // award points and update streak for the discovery itself
+        await updateUserStats(currentUser.uid, 10, true); // +10 points for a new discovery
+
       } else {
         console.log('User not logged in - discovery not saved to profile');
       }

@@ -32,7 +32,8 @@ import {
   collection,
   onSnapshot,
   query,
-  where } from "firebase/firestore";
+  where,
+  increment } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC3KsAAAGn1fBc0B_lWKf63i9Mw9omGIu4",
@@ -89,6 +90,9 @@ export const saveUserSkills = async (userId: string, skills: Array<{skill_name: 
     const userSkillsRef = doc(db, 'user_skills', userId);
     const existingDoc = await getDoc(userSkillsRef);
     
+    let pointsForNewSkills = 0;
+    let pointsForUpdatedSkills = 0;
+
     if (existingDoc.exists()) {
       // Update existing skills
       const existingSkills: Record<string, any> = existingDoc.data().skills || {};
@@ -96,14 +100,17 @@ export const saveUserSkills = async (userId: string, skills: Array<{skill_name: 
       // Add new skills or update existing ones
       skills.forEach(skill => {
         if (existingSkills[skill.skill_name]) {
+          pointsForUpdatedSkills += 5; // +5 points for skill level-up
           // Increment mastery level if skill already exists
           existingSkills[skill.skill_name] = {
             ...existingSkills[skill.skill_name],
             mastery_level: Math.min(100, existingSkills[skill.skill_name].mastery_level + 10),
+            xp_earned: existingSkills[skill.skill_name].xp_earned + 10,
             last_updated: new Date().toISOString()
           };
         } else {
           // Add new skill
+          pointsForNewSkills += 25;
           existingSkills[skill.skill_name] = {
             skill_name: skill.skill_name,
             category: skill.category,
@@ -120,6 +127,7 @@ export const saveUserSkills = async (userId: string, skills: Array<{skill_name: 
       // Create new user skills document
       const skillsObject: Record<string, any> = {};
       skills.forEach(skill => {
+        pointsForNewSkills += 25;
         skillsObject[skill.skill_name] = {
           skill_name: skill.skill_name,
           category: skill.category,
@@ -131,6 +139,12 @@ export const saveUserSkills = async (userId: string, skills: Array<{skill_name: 
       });
       
       await setDoc(userSkillsRef, { skills: skillsObject });
+    }
+    
+    // After updating skills, update the total points
+    const totalPointsToAdd = pointsForNewSkills + pointsForUpdatedSkills;
+    if (totalPointsToAdd > 0) {
+      await updateUserStats(userId, totalPointsToAdd);
     }
     
     return true;
@@ -164,6 +178,61 @@ export const getUserSkillsRealtime = (userId: string, callback: (skills: any) =>
       callback({});
     }
   });
+};
+
+// new function for updating points and streaks
+export const updateUserStats = async (userId: string, pointsToAdd: number, isNewDiscovery: boolean = false) => {
+  const userRef = doc(db, 'Tuklascope-user', userId);
+  
+  try {
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      console.error("User document does not exist to update stats.");
+      return;
+    }
+
+    const userData = userDoc.data();
+    const today = new Date().toISOString().split('T')[0]; // Get today's date as YYYY-MM-DD
+
+    const lastLoginDate = userData.lastLoginDate;
+    const currentStreak = userData.streak || 0;
+    let newStreak = currentStreak;
+
+    if (isNewDiscovery) {
+      if (lastLoginDate !== today) {
+        // Check if the last login was yesterday to continue the streak
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        if (lastLoginDate === yesterdayStr) {
+          newStreak = currentStreak + 1; // Continue streak
+        } else {
+          newStreak = 1; // Reset streak
+        }
+        
+        await updateDoc(userRef, {
+          totalPoints: increment(pointsToAdd),
+          streak: newStreak,
+          lastLoginDate: today
+        });
+
+      } else {
+        // Already logged in today, just add points
+        await updateDoc(userRef, {
+          totalPoints: increment(pointsToAdd)
+        });
+      }
+    } else {
+      // Not a new discovery, just add points (e.g., for skill updates)
+      await updateDoc(userRef, {
+        totalPoints: increment(pointsToAdd)
+      });
+    }
+
+  } catch (error) {
+    console.error("Error updating user stats:", error);
+  }
 };
 
 // User Discoveries Management Functions

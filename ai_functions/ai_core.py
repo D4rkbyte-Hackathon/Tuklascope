@@ -43,7 +43,7 @@ def get_identified_object(image_path: str) -> dict | None:
     try:
         img = Image.open(image_path)
 
-        model = genai.GenerativeModel('gemini-2.5-flash') # ------------------------------------para dali makit an
+        model = genai.GenerativeModel('gemini-1.5-flash') # ------------------------------------para dali makit an
         response = model.generate_content([prompt_template, img])
 
         match = re.search(r'\{.*\}', response.text, re.DOTALL)

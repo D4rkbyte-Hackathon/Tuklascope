@@ -4,6 +4,7 @@ import { DiscoveryModal } from '../components/DiscoveryModal';
 import { useChatbotActions } from '../hooks/useChatbotActions';
 import { useNavigate } from 'react-router-dom';
 import { RecentDiscoveries, RecentDiscovery } from '../components/RecentDiscoveries';
+import { GamificationHeader } from '../components/GamificationHeader';
 
 const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); //state for modal
@@ -27,12 +28,14 @@ const HomePage = () => {
           minHeight: '100vh',
           width: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           background: '#fff',
           padding: '20px 0',
         }}
       >
+        <GamificationHeader />
         <div
           className="homepage-flex"
           style={{
