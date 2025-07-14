@@ -3,66 +3,112 @@
     padding: 0;
 }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.logo {
     height: 40px;
-    background: linear-gradient(to top, #FFE942, #8C0305);
-    padding-left: 2rem;
-    padding-right: 2rem;
+    width: auto;
+    margin-right: 16px;
+    object-fit: contain;
 }
 
-.nav-left,
-.nav-mid,
-.nav-right {
-    font-family: 'Bebas Neue', sans-serif;
+.navbar {
+    width: 100%;
+    height: 64px;
+    background-color: transparent;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: fixed;
+    top: 0;
+    z-index: 50;
+    font-family: 'Bebas Neue', sans-serif;
 }
 
 .nav-left {
-    color: #D1D5DB;
+    display: flex;
+    align-items: center;
 }
 
 .nav-mid {
-    gap: 5rem;
-    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 32px;
     flex: 1;
+    justify-content: center;
 }
 
 .nav-mid h3 {
-    color: #D1D5DB;
-    font-size: 24px;
-    text-shadow:
-    -1px -1px 0 #000,
-     1px -1px 0 #000,
-    -1px  1px 0 #000,
-     1px  1px 0 #000;
+    font-size: 30px;
+    font-weight: 600;
+    text-shadow: none;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.nav-mid h3 a {
+    color: #1F2937;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+    display: block;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-mid h3 a:hover {
+    color: #FF6B2C;
+}
+
+.nav-mid h3::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background: #FF6B2C;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    transition: width 0.3s ease-in-out;
+}
+
+.nav-mid h3:hover::after {
+    width: 100%;
 }
 
 .nav-right {
+    display: flex;
+    align-items: center;
     gap: 1rem;
 }
 
-.navbar button{
+.navbar button {
     text-align: center;
     width: 100px;
+    padding: 10px 0;
     border-radius: 20px;
     font-family: 'Bebas Neue', sans-serif;
     font-size: 18px;
     cursor: pointer;
+    border: none;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .navbar-login {
     background-color: #1F2937;
     color: #F9FAFB;
 }
+
+.navbar-login:hover,
+.navbar-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .navbar-signup {
     background-color: #EB831B;
     color: #1F2937;
 }
-
 
 .main {
     width: 100%;
