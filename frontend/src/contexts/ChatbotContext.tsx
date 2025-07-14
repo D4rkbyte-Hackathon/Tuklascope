@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
+import { useUserEducation } from '../hooks/useUserEducation';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -34,7 +35,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [gradeLevel] = useState('Junior High School');
+  const { education } = useUserEducation();
 
   const sendMessage = async (userQuestion: string) => {
     if (!userQuestion.trim() || isLoading) return;
@@ -62,7 +63,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
         },
         body: JSON.stringify({
           user_question: userMessage.parts,
-          grade_level: gradeLevel,
+          grade_level: education || 'Junior High (Grades 7-10)', // Use user's actual grade level with fallback
           chat_history: chatHistory,
           object_context: null // Can be updated later if needed
         }),

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useChatbot } from '../contexts/ChatbotContext';
 
 const ChatbotButton = () => {
@@ -12,7 +12,18 @@ const ChatbotButton = () => {
   } = useChatbot();
   
   const [inputValue, setInputValue] = React.useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,22 +58,27 @@ const ChatbotButton = () => {
       <div
         style={{
           position: 'fixed',
-          bottom: 32,
-          right: 32,
+          bottom: isMobile ? 16 : 32,
+          right: isMobile ? 16 : 32,
           zIndex: 200,
+          width: isMobile ? 56 : 72,
+          height: isMobile ? 56 : 72,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         <div
           style={{
-            width: 72,
-            height: 72,
+            width: isMobile ? 56 : 72,
+            height: isMobile ? 56 : 72,
             borderRadius: '50%',
             background: '#FF6B2C',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            fontSize: 36,
+            fontSize: isMobile ? 26 : 36,
             color: '#fff',
             fontWeight: 700,
             userSelect: 'none',
@@ -72,7 +88,9 @@ const ChatbotButton = () => {
           onClick={openChatbot}
           title="Open TuklasTutor"
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
+            if (!isMobile) {
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
@@ -87,12 +105,13 @@ const ChatbotButton = () => {
         <div
           style={{
             position: 'fixed',
-            bottom: 120,
-            right: 40,
-            width: 400,
-            height: 500,
+            bottom: isMobile ? 0 : 120,
+            right: isMobile ? 0 : 40,
+            left: isMobile ? 0 : 'auto',
+            width: isMobile ? '100%' : 400,
+            height: isMobile ? '100vh' : 500,
             background: '#fff',
-            borderRadius: 18,
+            borderRadius: isMobile ? 0 : 18,
             boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
             zIndex: 201,
             display: 'flex',
@@ -105,16 +124,16 @@ const ChatbotButton = () => {
             style={{
               background: '#FF6B2C',
               color: '#fff',
-              padding: '16px 24px',
-              borderRadius: '18px 18px 0 0',
+              padding: isMobile ? '20px 24px' : '16px 24px',
+              borderRadius: isMobile ? 0 : '18px 18px 0 0',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
             <div>
-              <div style={{ fontWeight: 700, fontSize: 18 }}>TuklasTutor</div>
-              <div style={{ fontSize: 12, opacity: 0.9 }}>Ask me anything!</div>
+              <div style={{ fontWeight: 700, fontSize: isMobile ? 20 : 18 }}>TuklasTutor</div>
+              <div style={{ fontSize: isMobile ? 14 : 12, opacity: 0.9 }}>Ask me anything!</div>
             </div>
             <button
               onClick={closeChatbot}
@@ -122,14 +141,15 @@ const ChatbotButton = () => {
                 background: 'none',
                 border: 'none',
                 color: '#fff',
-                fontSize: 24,
+                fontSize: isMobile ? 28 : 24,
                 cursor: 'pointer',
                 padding: 0,
-                width: 32,
-                height: 32,
+                width: isMobile ? 40 : 32,
+                height: isMobile ? 40 : 32,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                minHeight: 44, // Touch target size
               }}
             >
               ×
@@ -140,15 +160,22 @@ const ChatbotButton = () => {
           <div
             style={{
               flex: 1,
-              padding: '16px',
+              padding: isMobile ? '20px' : '16px',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
+              gap: isMobile ? '16px' : '12px',
+              WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
             }}
           >
             {messages.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#666', fontSize: 14, marginTop: 20 }}>
+              <div style={{ 
+                textAlign: 'center', 
+                color: '#666', 
+                fontSize: isMobile ? 16 : 14, 
+                marginTop: 20,
+                padding: isMobile ? '40px 20px' : '20px'
+              }}>
                 Start a conversation with your TuklasTutor!
               </div>
             )}
@@ -163,12 +190,12 @@ const ChatbotButton = () => {
               >
                 <div
                   style={{
-                    maxWidth: '80%',
-                    padding: '12px 16px',
+                    maxWidth: isMobile ? '85%' : '80%',
+                    padding: isMobile ? '16px 20px' : '12px 16px',
                     borderRadius: message.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                     background: message.role === 'user' ? '#FF6B2C' : '#f3f4f6',
                     color: message.role === 'user' ? '#fff' : '#1f2937',
-                    fontSize: 14,
+                    fontSize: isMobile ? 16 : 14,
                     lineHeight: 1.4,
                     wordWrap: 'break-word',
                   }}
@@ -176,7 +203,7 @@ const ChatbotButton = () => {
                   <div>{message.parts}</div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: isMobile ? 12 : 11,
                       opacity: 0.7,
                       marginTop: 4,
                       textAlign: message.role === 'user' ? 'right' : 'left',
@@ -192,19 +219,19 @@ const ChatbotButton = () => {
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div
                   style={{
-                    padding: '12px 16px',
+                    padding: isMobile ? '16px 20px' : '12px 16px',
                     borderRadius: '18px 18px 18px 4px',
                     background: '#f3f4f6',
                     color: '#1f2937',
-                    fontSize: 14,
+                    fontSize: isMobile ? 16 : 14,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <div 
                         style={{ 
-                          width: 6, 
-                          height: 6, 
+                          width: isMobile ? 8 : 6, 
+                          height: isMobile ? 8 : 6, 
                           borderRadius: '50%', 
                           background: '#FF6B2C',
                           animation: 'bounce1 1.4s infinite ease-in-out'
@@ -212,8 +239,8 @@ const ChatbotButton = () => {
                       ></div>
                       <div 
                         style={{ 
-                          width: 6, 
-                          height: 6, 
+                          width: isMobile ? 8 : 6, 
+                          height: isMobile ? 8 : 6, 
                           borderRadius: '50%', 
                           background: '#FF6B2C',
                           animation: 'bounce2 1.4s infinite ease-in-out'
@@ -221,15 +248,15 @@ const ChatbotButton = () => {
                       ></div>
                       <div 
                         style={{ 
-                          width: 6, 
-                          height: 6, 
+                          width: isMobile ? 8 : 6, 
+                          height: isMobile ? 8 : 6, 
                           borderRadius: '50%', 
                           background: '#FF6B2C',
                           animation: 'bounce3 1.4s infinite ease-in-out'
                         }}
                       ></div>
                     </div>
-                    Thinking...
+                    <span style={{ fontSize: isMobile ? 16 : 14 }}>Thinking...</span>
                   </div>
                 </div>
               </div>
@@ -240,12 +267,12 @@ const ChatbotButton = () => {
           {/* Input Area */}
           <div
             style={{
-              padding: '16px',
+              padding: isMobile ? '20px' : '16px',
               borderTop: '1px solid #e5e7eb',
               background: '#fff',
             }}
           >
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: isMobile ? 12 : 8 }}>
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -253,14 +280,14 @@ const ChatbotButton = () => {
                 placeholder="Type your question..."
                 style={{
                   flex: 1,
-                  padding: '12px 16px',
+                  padding: isMobile ? '16px 20px' : '12px 16px',
                   border: '1px solid #d1d5db',
                   borderRadius: 20,
-                  fontSize: 14,
+                  fontSize: isMobile ? 16 : 14,
                   resize: 'none',
                   outline: 'none',
                   fontFamily: 'inherit',
-                  minHeight: 44,
+                  minHeight: isMobile ? 48 : 44,
                   maxHeight: 100,
                 }}
                 rows={1}
@@ -273,14 +300,15 @@ const ChatbotButton = () => {
                   color: '#fff',
                   border: 'none',
                   borderRadius: '50%',
-                  width: 44,
-                  height: 44,
+                  width: isMobile ? 48 : 44,
+                  height: isMobile ? 48 : 44,
                   cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 18,
+                  fontSize: isMobile ? 20 : 18,
                   transition: 'background-color 0.2s ease',
+                  minHeight: 44, // Touch target size
                 }}
               >
                 ➤
@@ -307,6 +335,50 @@ const ChatbotButton = () => {
           .bounce1 { animation-delay: 0s; }
           .bounce2 { animation-delay: 0.2s; }
           .bounce3 { animation-delay: 0.4s; }
+          
+          /* Mobile-specific styles */
+          @media (max-width: 768px) {
+            .chatbot-modal {
+              border-radius: 0 !important;
+              bottom: 0 !important;
+              right: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: 100vh !important;
+            }
+            
+            .chatbot-header {
+              padding: 20px 24px !important;
+            }
+            
+            .chatbot-messages {
+              padding: 20px !important;
+              gap: 16px !important;
+            }
+            
+            .chatbot-input {
+              padding: 20px !important;
+            }
+            
+            .chatbot-textarea {
+              font-size: 16px !important;
+              padding: 16px 20px !important;
+              min-height: 48px !important;
+            }
+            
+            .chatbot-send-button {
+              width: 48px !important;
+              height: 48px !important;
+              font-size: 20px !important;
+            }
+          }
+          
+          /* Prevent zoom on iOS input focus */
+          @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .chatbot-textarea {
+              font-size: 16px !important;
+            }
+          }
         `}
       </style>
     </>

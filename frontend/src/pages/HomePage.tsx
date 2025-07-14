@@ -30,21 +30,23 @@ const HomePage = () => {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#fff',
+          padding: '20px 0',
         }}
       >
         <div
+          className="homepage-flex"
           style={{
             display: "flex",
+            gap: 64,
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
             maxWidth: 1400,
             padding: "0 3rem",
-            gap: 64,
           }}
         >
           {/* Left Section */}
-          <div style={{ maxWidth: 700 }}>
+          <div className="homepage-left" style={{ maxWidth: 700 }}>
             <h1 style={{ fontSize: "3.5rem", fontWeight: 700, color: "#0B3C6A", lineHeight: 1.1 }}>
               Discover <span style={{ color: "#FF6B2C" }}>STEM</span><br />Everywhere You Look
             </h1>
@@ -80,7 +82,7 @@ const HomePage = () => {
             </div>
           </div>
           {/* Right Section - UPDATED */}
-          <div style={{ minWidth: 480, maxWidth: 540, background: "#fff", borderRadius: 36, boxShadow: "0 8px 32px rgba(0,0,0,0.10)", padding: 48 }}>
+          <div className="homepage-right" style={{ minWidth: 480, maxWidth: 540, background: "#fff", borderRadius: 36, boxShadow: "0 8px 32px rgba(0,0,0,0.10)", padding: 48 }}>
             <div style={{ fontWeight: 700, fontSize: 32, color: "#0B3C6A", textAlign: "center" }}>What will you discover today?</div>
             <div style={{ color: "#1F2937", textAlign: "center", marginBottom: 48, marginTop: 12, fontSize: 18 }}>
               Upload a photo or use your camera to begin.
@@ -244,10 +246,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-
-
-
     </>
   );
 };

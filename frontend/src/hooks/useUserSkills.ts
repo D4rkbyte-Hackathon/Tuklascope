@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth, getUserSkillsRealtime, saveUserSkills } from '../database/firebase';
-
-interface Skill {
-  skill_name: string;
-  category: string;
-  mastery_level: number;
-  xp_earned: number;
-  date_acquired: string;
-  last_updated: string;
-}
+import { Skill, CategoryStat } from '../types/skills';
 
 export const useUserSkills = () => {
   const [userSkills, setUserSkills] = useState<Record<string, Skill>>({});
@@ -46,8 +38,8 @@ export const useUserSkills = () => {
     return Object.values(userSkills).filter(skill => skill.mastery_level >= 50);
   };
 
-  const getCategoryStats = () => {
-    const categories: Record<string, any> = {};
+  const getCategoryStats = (): CategoryStat[] => {
+    const categories: Record<string, CategoryStat> = {};
     
     Object.values(userSkills).forEach((skill) => {
       const category = skill.category;
@@ -68,7 +60,7 @@ export const useUserSkills = () => {
     });
 
     // Calculate levels and progress
-    Object.values(categories).forEach((category: any) => {
+    Object.values(categories).forEach((category) => {
       category.level = Math.floor(category.xp / 100) + 1;
       category.progress = Math.min(1, (category.xp % 100) / 100);
     });

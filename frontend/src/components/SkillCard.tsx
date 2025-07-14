@@ -1,13 +1,5 @@
 import React from 'react';
-
-interface Skill {
-  skill_name: string;
-  category: string;
-  mastery_level: number;
-  xp_earned: number;
-  date_acquired: string;
-  last_updated: string;
-}
+import { Skill } from '../types/skills';
 
 interface SkillCardProps {
   skill: Skill;

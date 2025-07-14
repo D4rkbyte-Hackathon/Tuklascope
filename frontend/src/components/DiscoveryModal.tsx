@@ -214,8 +214,9 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ background: '#fff', borderRadius: 24, padding: 40, width: '100%', maxWidth: view === 'choice' ? 800 : 600, position: 'relative', transition: 'all 0.3s' }}>
+    <div className="discovery-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div className="discovery-modal-content" style={{ background: '#fff', borderRadius: 24, padding: 40, width: '100%', maxWidth: view === 'choice' ? 800 : 600, position: 'relative', transition: 'all 0.3s' }}>
+        <div className="discovery-modal-drag-indicator" />
         <button onClick={handleClose} style={{ position: 'absolute', top: 20, right: 20, background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#888' }}>
           &times;
         </button>
