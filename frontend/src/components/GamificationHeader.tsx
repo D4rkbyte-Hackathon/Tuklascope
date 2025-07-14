@@ -56,54 +56,75 @@ export const GamificationHeader = () => {
   }
   
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: '2rem',
-      width: '100%',
-      maxWidth: '1400px',
-      padding: '1rem 3rem',
-      background: '#F8FAFC',
-      border: '1px solid #E5E7EB',
-      borderRadius: '24px',
-      marginBottom: '4rem',
-    }}>
-      {/* Daily Quest Section */}
-      <div style={{ flex: 1 }}>
-        <div style={{ color: '#0B3C6A', fontWeight: 700, fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-          {dailyQuest.title} (+{dailyQuest.reward} Points)
+    <>
+      <div className="gamification-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '2rem',
+        width: '100%',
+        maxWidth: '1400px',
+        padding: '1rem 3rem',
+        background: '#F8FAFC',
+        border: '1px solid #E5E7EB',
+        borderRadius: '24px',
+        marginBottom: '4rem',
+      }}>
+        {/* Daily Quest Section */}
+        <div style={{ flex: 1 }}>
+          <div className="daily-quest-title" style={{ color: '#0B3C6A', fontWeight: 700, fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+            {dailyQuest.title} (+{dailyQuest.reward} Points)
+          </div>
+          <div style={{ width: '100%', background: '#E5E7EB', borderRadius: '8px', height: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+            <div style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #16A34A, #22C55E)',
+              borderRadius: '8px',
+              transition: 'width 0.5s ease-in-out'
+            }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: '0.9rem' }}>
+              {dailyQuest.current} / {dailyQuest.goal} Discovered
+            </div>
+          </div>
         </div>
-        <div style={{ width: '100%', background: '#E5E7EB', borderRadius: '8px', height: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{
-            width: `${progress}%`,
-            height: '100%',
-            background: 'linear-gradient(90deg, #16A34A, #22C55E)',
-            borderRadius: '8px',
-            transition: 'width 0.5s ease-in-out'
-          }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: '0.9rem' }}>
-            {dailyQuest.current} / {dailyQuest.goal} Discovered
+        {/* Streak and Points Section */}
+        <div className="streak-points-section" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FF6B2C' }}>
+              🔥 {stats.streak}
+            </div>
+            <div style={{ color: '#4B5563', fontWeight: 600, fontSize: '1rem' }}>Day Streak</div>
+          </div>
+          <div style={{ height: '50px', width: '2px', background: '#E5E7EB' }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0B3C6A' }}>
+              {stats.totalPoints}
+            </div>
+            <div style={{ color: '#4B5563', fontWeight: 600, fontSize: '1rem' }}>Total Points</div>
           </div>
         </div>
       </div>
-      
-      {/* Streak and Points Section */}
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FF6B2C' }}>
-            🔥 {stats.streak}
-          </div>
-          <div style={{ color: '#4B5563', fontWeight: 600, fontSize: '1rem' }}>Day Streak</div>
-        </div>
-        <div style={{ height: '50px', width: '2px', background: '#E5E7EB' }} />
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0B3C6A' }}>
-            {stats.totalPoints}
-          </div>
-          <div style={{ color: '#4B5563', fontWeight: 600, fontSize: '1rem' }}>Total Points</div>
-        </div>
-      </div>
-    </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .gamification-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 1.2rem !important;
+            padding: 1rem 0.5rem !important;
+          }
+          .gamification-header .daily-quest-title {
+            font-size: 1rem !important;
+          }
+          .gamification-header .streak-points-section {
+            flex-direction: row !important;
+            gap: 1.2rem !important;
+          }
+          .gamification-header .streak-points-section > div {
+            font-size: 1.5rem !important;
+          }
+        }
+      `}</style>
+    </>
   );
 };

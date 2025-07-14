@@ -359,14 +359,14 @@ const ProfilePage = () => {
                   </>
                 )}
                 <div style={{ color: '#2563EB', fontWeight: 700, fontSize: 18, marginBottom: 2 }}>Total Points</div>
-                <div style={{ color: '#FF6B2C', fontWeight: 800, fontSize: 32, marginBottom: 8 }}>2456</div>
+                <div style={{ color: '#FF6B2C', fontWeight: 800, fontSize: 32, marginBottom: 8 }}>0</div>
                 <div style={{ color: '#2563EB', fontWeight: 700, fontSize: 18, marginBottom: 2 }}>Current Streak</div>
-                <div style={{ color: '#FF6B2C', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>12 days</div>
+                <div style={{ color: '#FF6B2C', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>0 days</div>
                 {/* Progress Bar */}
                 <div style={{ width: '100%', height: 10, background: '#F3F4F6', borderRadius: 8, marginBottom: 8 }}>
-                  <div style={{ width: '80%', height: '100%', background: 'linear-gradient(90deg, #FF6B2C 60%, #FFC371 100%)', borderRadius: 8 }} />
+                  <div style={{ width: '0%', height: '100%', background: 'linear-gradient(90deg, #FF6B2C 60%, #FFC371 100%)', borderRadius: 8 }} />
                 </div>
-                <div style={{ color: '#888', fontSize: 15 }}>544 points to next level</div>
+                <div style={{ color: '#888', fontSize: 15 }}>100 points to next level</div>
               </div>
 
               {/* Location Information Card */}

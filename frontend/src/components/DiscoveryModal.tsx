@@ -140,6 +140,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
       <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 32 }}>
         <button
           onClick={toggleCamera}
+          className="camera-capture-btn"
           style={{
             background: '#fff',
             border: '2px solid #E5E7EB',
@@ -156,13 +157,14 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
           }}
           title={cameraFacing === 'environment' ? 'Switch to Front Camera' : 'Switch to Back Camera'}
         >
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
         <button
           onClick={handleCapture}
           disabled={!!cameraError}
+          className="camera-capture-btn"
           style={{
             background: '#FF6B2C',
             color: '#fff',
@@ -180,7 +182,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
           }}
           title="Take Photo"
         >
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <circle cx="12" cy="12" r="8" stroke="white" strokeWidth="2" fill="none" />
             <circle cx="12" cy="12" r="4" fill="white" />
           </svg>
@@ -319,6 +321,19 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
             min-height: 48px !important;
             font-size: 16px !important;
           }
+          .camera-capture-btn {
+            width: 56px !important;
+            height: 56px !important;
+            min-width: 56px !important;
+            min-height: 56px !important;
+            max-width: 56px !important;
+            max-height: 56px !important;
+            border-radius: 50% !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
         }
         
         @media (max-width: 480px) {
@@ -334,7 +349,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
             font-size: 12px !important;
           }
           
-          .discovery-modal-content > div:last-child > div:last-child button {
+          .discovery-modal-content > div:last-child > div:last-child button:not(.camera-capture-btn) {
             font-size: 14px !important;
           }
         }

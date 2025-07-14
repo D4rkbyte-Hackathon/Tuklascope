@@ -166,7 +166,7 @@ const Navbar = () => {
       {/* Streak Counter - Hidden on mobile */}
       {!isMobile && (
         <div style={{ color: '#FF6B2C', fontWeight: 700, fontSize: 18, marginRight: 24 }}>
-          12 <span style={{ color: '#1F2937', fontWeight: 400, fontSize: 16 }}>day streak!</span>
+          0 <span style={{ color: '#1F2937', fontWeight: 400, fontSize: 16 }}>day streak!</span>
         </div>
       )}
 
@@ -289,7 +289,7 @@ const Navbar = () => {
             padding: '8px 0',
             borderBottom: '1px solid #E5E7EB'
           }}>
-            12 <span style={{ color: '#1F2937', fontWeight: 400, fontSize: 14 }}>day streak!</span>
+            0 <span style={{ color: '#1F2937', fontWeight: 400, fontSize: 14 }}>day streak!</span>
           </div>
           
           {/* Mobile Navigation Links */}
