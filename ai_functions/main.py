@@ -1,21 +1,14 @@
-# In ai_functions/app.py
-
-import os
-import shutil
-from typing import List, Dict, Optional, Any
-
-# --- FastAPI Imports ---
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body
+from typing import List, Dict
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field # Used for data validation
+from pydantic import BaseModel, Field
 
-# --- Your AI Core Functions ---
 from ai_core import (
     get_identified_object,
     generate_spark_content,
     get_normalized_stem_skills,
     get_pathfinder_guidance,
-    get_ai_tutor_response
+    get_ai_tutor_response,
 )
 
 # --- Initialize FastAPI App ---
@@ -29,7 +22,7 @@ app = FastAPI(
 # This allows your React frontend (running on a different port) to communicate with this API.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, you should restrict this to your frontend's domain
+    allow_origins=["*"],  # WARNING: Restrict this to your frontend's domain in production!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,28 +30,45 @@ app.add_middleware(
 
 # --- Pydantic Models for Request Data (Data Validation) ---
 # These models ensure that the data sent from your frontend is in the correct format.
+class IdentificationModel(BaseModel):
+    object_label: str = Field(..., description="The name of the identified object.")
+    category_hint: str = Field(..., description="A hint for the object's category (e.g., Biology, Chemistry).")
 
-class SparkContentRequest(BaseModel):
-    object_info: Dict[str, str] = Field(..., example={"object_label": "Leaf", "category_hint": "Biology"})
-    grade_level: str = Field(..., example="Junior High School")
+class SparkContentModel(BaseModel):
+    quick_facts: List[str] = Field(..., description="A list of interesting, quick facts about the object.")
+    stem_concepts: List[str] = Field(..., description="A list of core STEM concepts related to the object.")
+    hands_on_project: str = Field(..., description="A simple, hands-on project idea related to the object.")
 
-class SkillRequest(BaseModel):
-    spark_content: Dict[str, Any]
+class SkillModel(BaseModel):
+    skill_name: str = Field(..., description="The specific name of the STEM skill learned.")
+    category: str = Field(..., description="The broader STEM category for the skill (e.g., Physics, Biology).")
+
+class SkillsResponseModel(BaseModel):
+    normalized_skills: List[SkillModel]
+
+class FullDiscoveryResponse(BaseModel):
+    identification: IdentificationModel
+    spark_content: SparkContentModel
+    skills: SkillsResponseModel
 
 class PathfinderRequest(BaseModel):
     user_skills: Dict[str, int] = Field(..., example={"Photosynthesis": 80, "Algebra": 70})
     grade_level: str
 
+class PathfinderResponseModel(BaseModel):
+    title: str
+    summary: str
+    strongest_fields: List[str]
+    recommendations: List[Dict]
+
 class TutorRequest(BaseModel):
     user_question: str
     grade_level: str
-    chat_history: Optional[List[Dict[str, str]]] = None
-    object_context: Optional[str] = None
+    chat_history: List[Dict[str, str]] | None = None
+    object_context: str | None = None
 
-class FullDiscoveryResponse(BaseModel):
-    identification: Dict
-    spark_content: Dict
-    skills: Dict
+class TutorResponse(BaseModel):
+    response: str
 
 
 # --- API Endpoints ---
@@ -69,130 +79,79 @@ async def root():
     return {"status": "Tuklascope AI API is running!"}
 
 
-@app.post("/api/identify", tags=["1. Discovery"])
-async def identify_object_endpoint(image: UploadFile = File(...)):
-    """
-    Identifies the main object in an uploaded image.
-    """
-    temp_dir = "temp_images"
-    os.makedirs(temp_dir, exist_ok=True)
-    temp_path = os.path.join(temp_dir, image.filename)
-
+@app.post(
+    "/api/generate-full-discovery",
+    tags=["Core Feature"],
+    response_model=FullDiscoveryResponse,
+    summary="The primary endpoint for the discovery feature."
+)
+async def generate_full_discovery_endpoint(
+    image: UploadFile = File(..., description="The image file uploaded by the user."),
+    grade_level: str = Form(..., description="The user's current grade level (e.g., 'Junior High School').")
+):
+    """Handles the entire discovery process with a single, efficient API call."""
     try:
-        # Save the uploaded file temporarily
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-
-        # Call your AI function
-        result = get_identified_object(image_path=temp_path)
-        if not result:
-            raise HTTPException(status_code=500, detail="Failed to identify object from AI model.")
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-
-@app.post("/api/spark", tags=["2. Spark Content"])
-async def generate_spark_content_endpoint(request: SparkContentRequest):
-    """
-    Generates educational 'Spark' content for a given object and grade level.
-    """
-    result = generate_spark_content(object_info=request.object_info, grade_level=request.grade_level)
-    if not result:
-        raise HTTPException(status_code=500, detail="Failed to generate spark content.")
-    return result
-
-
-@app.post("/api/skills", tags=["3. Skill Tree"])
-async def extract_skills_endpoint(request: SkillRequest):
-    """
-    Extracts and normalizes STEM skills from generated Spark content.
-    """
-    result = get_normalized_stem_skills(spark_content=request.spark_content)
-    if result is None: # Can return empty list, so check for None
-        raise HTTPException(status_code=500, detail="Failed to extract skills.")
-    return {"normalized_skills": result}
-
-
-@app.post("/api/pathfinder", tags=["4. Pathfinder AI"])
-async def get_pathfinder_guidance_endpoint(request: PathfinderRequest):
-    """
-    Generates personalized academic and career guidance.
-    """
-    result = get_pathfinder_guidance(user_skills=request.user_skills, grade_level=request.grade_level)
-    if not result:
-        raise HTTPException(status_code=500, detail="Failed to get pathfinder guidance.")
-    return result
-
-
-@app.post("/api/tutor", tags=["5. AI Tutor"])
-async def get_tutor_response_endpoint(request: TutorRequest):
-    """
-    Gets a conversational response from the AI Tutor.
-    """
-    result = get_ai_tutor_response(
-        user_question=request.user_question,
-        grade_level=request.grade_level,
-        chat_history=request.chat_history,
-        object_context=request.object_context
-    )
-    if not result:
-        raise HTTPException(status_code=500, detail="Failed to get tutor response.")
-    return {"response": result}
-
-# dugay kaayo ang three part process, trying if this method is faster
-@app.post("/api/generate-full-discovery", tags=["6. Combined Endpoints"], response_model=FullDiscoveryResponse)
-async def generate_full_discovery_endpoint(image: UploadFile = File(...), grade_level: str = Form("Junior High School")):
-    """
-    Handles the full discovery process with a single API call.
-    1. Identifies the object in the image.
-    2. Generates spark content for the identified object.
-    3. Extracts skills from the spark content.
-    Returns a single JSON object with all results.
-    """
-    temp_dir = "temp_images"
-    os.makedirs(temp_dir, exist_ok=True)
-    temp_path = os.path.join(temp_dir, image.filename)
-
-    try:
-        # Save the uploaded file temporarily
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-
-        # --- STEP 1: IDENTIFY ---
-        id_result = get_identified_object(image_path=temp_path)
+        image_bytes = await image.read()
+        id_result = get_identified_object(image_bytes=image_bytes)
         if not id_result:
-            raise HTTPException(status_code=500, detail="AI failed during identification.")
+            raise HTTPException(status_code=503, detail="AI service failed during identification phase.")
 
-        # --- STEP 2: SPARK ---
         spark_result = generate_spark_content(object_info=id_result, grade_level=grade_level)
         if not spark_result:
-            raise HTTPException(status_code=500, detail="AI failed to generate spark content.")
+            raise HTTPException(status_code=503, detail="AI service failed to generate spark content.")
 
-        # --- STEP 3: SKILLS ---
         skills_result = get_normalized_stem_skills(spark_content=spark_result)
-        # skills_result can be an empty list, which is valid. Check for None.
         if skills_result is None:
-            raise HTTPException(status_code=500, detail="AI failed to extract skills.")
+            raise HTTPException(status_code=503, detail="AI service failed to extract and normalize skills.")
 
-        # --- COMBINE AND RETURN ---
         return {
             "identification": id_result,
             "spark_content": spark_result,
-            "skills": {"normalized_skills": skills_result}
+            "skills": skills_result
         }
-
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        # This will catch both our HTTPExceptions and other errors
-        if isinstance(e, HTTPException):
-            raise e
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+        print(f"An unexpected server error occurred in discovery: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An unexpected internal server error occurred.")
 
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+
+@app.post(
+    "/api/pathfinder",
+    tags=["Supporting Features"],
+    response_model=PathfinderResponseModel,
+    summary="Generates personalized academic and career guidance."
+)
+async def get_pathfinder_guidance_endpoint(request: PathfinderRequest):
+    """Provides career and academic guidance based on a user's acquired skills."""
+    try:
+        result = get_pathfinder_guidance(user_skills=request.user_skills, grade_level=request.grade_level)
+        if not result:
+            raise HTTPException(status_code=503, detail="AI Pathfinder service failed to generate guidance.")
+        return result
+    except Exception as e:
+        print(f"An unexpected server error occurred in pathfinder: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected internal server error occurred.")
+
+
+@app.post(
+    "/api/tutor",
+    tags=["Supporting Features"],
+    response_model=TutorResponse,
+    summary="Gets a conversational response from the AI Tutor."
+)
+async def get_tutor_response_endpoint(request: TutorRequest):
+    """Handles conversational AI tutoring with context and chat history."""
+    try:
+        result_text = get_ai_tutor_response(
+            user_question=request.user_question,
+            grade_level=request.grade_level,
+            chat_history=request.chat_history,
+            object_context=request.object_context
+        )
+        if not result_text:
+            raise HTTPException(status_code=503, detail="AI Tutor service failed to generate a response.")
+        return {"response": result_text}
+    except Exception as e:
+        print(f"An unexpected server error occurred in tutor: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected internal server error occurred.")
