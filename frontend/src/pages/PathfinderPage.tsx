@@ -4,6 +4,21 @@ import { useChatbotActions } from '../hooks/useChatbotActions';
 import { useUserSkills } from '../hooks/useUserSkills';
 import { useUserEducation } from '../hooks/useUserEducation';
 
+// LoadingIndicator copied from SparkResultsPage
+const LoadingIndicator = ({ text }: { text: string }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '300px', gap: '20px' }}>
+    <div style={{
+      border: '8px solid #f3f3f3', borderTop: '8px solid #FF6B2C',
+      borderRadius: '50%', width: '60px', height: '60px',
+      animation: 'spin 1.2s linear infinite'
+    }}></div>
+    <p style={{ color: '#0B3C6A', fontWeight: 'bold', fontSize: '18px' }}>{text}</p>
+    <style>{`
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    `}</style>
+  </div>
+);
+
 // Types for the API response
 interface PathfinderRecommendation {
   type: string;
@@ -138,14 +153,7 @@ const PathfinderPage = () => {
             padding: '64px 0',
           }}
         >
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 24, color: '#0B3C6A', marginBottom: 16 }}>
-              Analyzing your STEM journey...
-            </div>
-            <div style={{ color: '#1F2937' }}>
-              Our AI is crafting personalized recommendations for you
-            </div>
-          </div>
+          <LoadingIndicator text="Analyzing your STEM journey..." />
         </section>
       </>
     );

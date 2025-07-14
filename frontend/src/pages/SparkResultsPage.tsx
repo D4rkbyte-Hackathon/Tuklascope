@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'; //para formatting atong mga double a
 import { getAuth } from '../database/firebase';
 import { saveUserDiscovery } from '../database/firebase';
 import { useUserEducation } from '../hooks/useUserEducation';
+import { DiscoveryModal } from '../components/DiscoveryModal';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -70,6 +71,7 @@ const SparkResultsPage = () => {
   const [fullResult, setFullResult] = useState<FullDiscoveryResponse | null>(null);
   const [activeTab, setActiveTab] = useState<'facts' | 'concepts' | 'project'>('facts');
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
 
   const fetchFullDiscovery = async () => {
     if (!image) {
@@ -245,12 +247,20 @@ const SparkResultsPage = () => {
                 <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
             </div>
             
-            <Link to="/home" style={{ display: 'inline-block', textDecoration: 'none', background: '#0B3C6A', color: 'white', textAlign: 'center', padding: '18px 60px', borderRadius: 12, fontWeight: 'bold', fontSize: 18, marginTop: 20 }}>
+            <Link to="/home" style={{ display: 'none' }} />
+            <button
+              className="spark-button"
+              style={{ display: 'inline-block', background: '#0B3C6A', color: 'white', textAlign: 'center', padding: '18px 60px', borderRadius: 12, fontWeight: 'bold', fontSize: 18, marginTop: 20, border: 'none', cursor: 'pointer' }}
+              onClick={() => setShowDiscoveryModal(true)}
+            >
               Discover Something New
-            </Link>
+            </button>
           </div>
         )}
       </div>
+
+      {/* DiscoveryModal overlay */}
+      <DiscoveryModal isOpen={showDiscoveryModal} onClose={() => setShowDiscoveryModal(false)} />
 
       {/* Mobile-specific styles */}
       <style>{`
