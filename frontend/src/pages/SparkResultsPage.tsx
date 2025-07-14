@@ -78,6 +78,12 @@ const SparkResultsPage = () => {
       return;
     }
 
+    if (!education || education.trim() === '') {
+      setError("To continue, please update your profile with your education level.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -90,7 +96,7 @@ const SparkResultsPage = () => {
       // Create a single FormData object for the API call
       const formData = new FormData();
       formData.append('image', file);
-      formData.append('grade_level', education || 'Junior High School');
+      formData.append('grade_level', education);// I remove the junior high school so it doesnt assume that the user is in junior high school
 
       // Make a single, efficient API call to the combined endpoint
       const response = await fetch(`${API_URL}/api/generate-full-discovery`, {
@@ -148,7 +154,12 @@ const SparkResultsPage = () => {
     }
     // Only proceed if education data is loaded
     if (!educationLoading) {
-      fetchFullDiscovery();
+      if (!education || education.trim() === '') {
+        setError("To continue, please update your profile with your education level.");
+        setIsLoading(false);
+      } else {
+        fetchFullDiscovery();
+      }
     }
   }, [image, recentDiscovery, education, educationLoading]);
 
