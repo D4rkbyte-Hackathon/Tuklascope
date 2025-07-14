@@ -57,6 +57,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
+    await saveMessageToFirestore(userMessage);
 
     try {
       // Prepare chat history for API (excluding timestamps)
@@ -91,6 +92,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      await saveMessageToFirestore(userMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
