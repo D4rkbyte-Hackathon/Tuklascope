@@ -35,6 +35,16 @@ const PathfinderPage = () => {
   const [pathfinderData, setPathfinderData] = useState<PathfinderResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get skills from Firebase instead of localStorage
   const getUserSkillsForAPI = () => {
@@ -43,6 +53,13 @@ const PathfinderPage = () => {
       skillsObject[skill.skill_name] = skill.mastery_level || 75; // Use actual mastery level
     });
     return skillsObject;
+  };
+
+  // Function to clear pathfinder cache
+  const clearPathfinderCache = () => {
+    localStorage.removeItem('tuklascope_pathfinder_result');
+    localStorage.removeItem('tuklascope_pathfinder_skills_hash');
+    localStorage.removeItem('tuklascope_pathfinder_education');
   };
 
   useEffect(() => {
@@ -56,11 +73,14 @@ const PathfinderPage = () => {
       return;
     }
 
-    // Try to load last result from localStorage, but only if education level hasn't changed
-    const lastResult = localStorage.getItem('tuklascope_pathfinder_result');
+    // Create a hash of current skills to detect changes
+    const skillsHash = JSON.stringify(getUserSkillsForAPI());
+    const lastSkillsHash = localStorage.getItem('tuklascope_pathfinder_skills_hash');
     const lastEducation = localStorage.getItem('tuklascope_pathfinder_education');
     
-    if (lastResult && lastEducation === education) {
+    // Check if we can use cached result (same skills and education)
+    const lastResult = localStorage.getItem('tuklascope_pathfinder_result');
+    if (lastResult && lastSkillsHash === skillsHash && lastEducation === education) {
       setPathfinderData(JSON.parse(lastResult));
       setLoading(false);
       return;
@@ -88,8 +108,9 @@ const PathfinderPage = () => {
 
         const data = await response.json();
         setPathfinderData(data);
-        // Save result to localStorage along with education level
+        // Save result to localStorage along with skills hash and education level
         localStorage.setItem('tuklascope_pathfinder_result', JSON.stringify(data));
+        localStorage.setItem('tuklascope_pathfinder_skills_hash', skillsHash);
         localStorage.setItem('tuklascope_pathfinder_education', education || '');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pathfinder data');
@@ -236,10 +257,10 @@ const PathfinderPage = () => {
         }}
       >
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 400 }}>
-          <h1 style={{ fontSize: 48, fontWeight: 700, color: '#0B3C6A', marginBottom: 16, textAlign: 'center' }}>
+          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, color: '#0B3C6A', marginBottom: 16, textAlign: 'center', padding: isMobile ? '0 20px' : undefined }}>
             {pathfinderData.title}
           </h1>
-          <div style={{ color: '#1F2937', fontSize: 22, marginBottom: 48, textAlign: 'center', maxWidth: 700 }}>
+          <div style={{ color: '#1F2937', fontSize: isMobile ? 18 : 22, marginBottom: 48, textAlign: 'center', maxWidth: 700, padding: isMobile ? '0 20px' : undefined }}>
             {pathfinderData.summary}
           </div>
           
@@ -247,14 +268,24 @@ const PathfinderPage = () => {
           <div style={{ 
             background: '#FF6B2C', 
             color: '#fff', 
-            padding: '12px 32px', 
+            padding: isMobile ? '8px 16px' : '12px 32px',
             borderRadius: 24, 
             fontWeight: 700, 
-            fontSize: 20, 
-            marginBottom: 64,
+            fontSize: isMobile ? 16 : 20, 
+            marginBottom: 32,
             marginTop: 8
           }}>
             {education || 'Junior High (Grades 7-10)'} Student
+          </div>
+
+          {/* Last Updated Indicator */}
+          <div style={{ 
+            color: '#6B7280', 
+            fontSize: 14, 
+            marginBottom: 64,
+            textAlign: 'center'
+          }}>
+            Last updated: {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
           </div>
 
           {/* Strongest Fields Section */}
@@ -527,24 +558,53 @@ const PathfinderPage = () => {
             <p style={{ color: '#1F2937', fontSize: 18, marginBottom: 24 }}>
               Continue discovering STEM concepts to get even more accurate career and academic recommendations!
             </p>
-            <button
-              onClick={() => openChatbot()}
-              style={{
-                background: '#FF6B2C',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 12,
-                padding: '16px 32px',
-                fontSize: 18,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#e55a1f'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#FF6B2C'}
-            >
-              Start Discovery
-            </button>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => openChatbot()}
+                style={{
+                  background: '#FF6B2C',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '16px 32px',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#e55a1f'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#FF6B2C'}
+              >
+                Start Discovery
+              </button>
+              <button
+                onClick={() => {
+                  clearPathfinderCache();
+                  window.location.reload();
+                }}
+                style={{
+                  background: '#fff',
+                  color: '#0B3C6A',
+                  border: '2px solid #0B3C6A',
+                  borderRadius: 12,
+                  padding: '16px 32px',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0B3C6A';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.color = '#0B3C6A';
+                }}
+              >
+                Refresh Recommendations
+              </button>
+            </div>
           </div>
         </div>
       </section>

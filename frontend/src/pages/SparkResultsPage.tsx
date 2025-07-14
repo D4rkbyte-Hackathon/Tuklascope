@@ -78,73 +78,39 @@ const SparkResultsPage = () => {
       return;
     }
 
+    if (!education || education.trim() === '') {
+      setError("To continue, please update your profile with your education level.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
+      // Convert the base64 image string to a File object
       const fetchRes = await fetch(image);
       const blob = await fetchRes.blob();
       const file = new File([blob], "discovery.png", { type: "image/png" });
       
-      // Step 1: Identify the object
-      const identifyFormData = new FormData();
-      identifyFormData.append('image', file);
-      
-      const identifyResponse = await fetch(`${API_URL}/api/identify`, {
+      // Create a single FormData object for the API call
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('grade_level', education);// I remove the junior high school so it doesnt assume that the user is in junior high school
+
+      // Make a single, efficient API call to the combined endpoint
+      const response = await fetch(`${API_URL}/api/generate-full-discovery`, {
         method: 'POST',
-        body: identifyFormData,
+        body: formData,
       });
 
-      if (!identifyResponse.ok) {
-        const errData = await identifyResponse.json();
-        throw new Error(errData.detail || `Identification failed: ${identifyResponse.status}`);
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || `Discovery failed: ${response.status}`);
       }
 
-      const identificationResult = await identifyResponse.json();
-
-      // Step 2: Generate spark content with grade level
-      const sparkResponse = await fetch(`${API_URL}/api/spark`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          object_info: identificationResult,
-          grade_level: education || 'Junior High School'
-        }),
-      });
-
-      if (!sparkResponse.ok) {
-        const errData = await sparkResponse.json();
-        throw new Error(errData.detail || `Spark generation failed: ${sparkResponse.status}`);
-      }
-
-      const sparkResult = await sparkResponse.json();
-
-      // Step 3: Extract skills
-      const skillsResponse = await fetch(`${API_URL}/api/skills`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          spark_content: sparkResult
-        }),
-      });
-
-      if (!skillsResponse.ok) {
-        const errData = await skillsResponse.json();
-        throw new Error(errData.detail || `Skills extraction failed: ${skillsResponse.status}`);
-      }
-
-      const skillsResult = await skillsResponse.json();
-
-      // Combine all results
-      const data: FullDiscoveryResponse = {
-        identification: identificationResult,
-        spark_content: sparkResult,
-        skills: skillsResult
-      };
+      const data: FullDiscoveryResponse = await response.json();
 
       setFullResult(data);
       if (data.skills?.normalized_skills?.length > 0) {
@@ -155,7 +121,6 @@ const SparkResultsPage = () => {
       const auth = getAuth();
       const currentUser = auth.currentUser;
       if (currentUser) {
-        const objectLabel = data?.identification?.object_label || '';
         const newEntry = {
           id: Date.now(),
           image,
@@ -189,7 +154,12 @@ const SparkResultsPage = () => {
     }
     // Only proceed if education data is loaded
     if (!educationLoading) {
-      fetchFullDiscovery();
+      if (!education || education.trim() === '') {
+        setError("To continue, please update your profile with your education level.");
+        setIsLoading(false);
+      } else {
+        fetchFullDiscovery();
+      }
     }
   }, [image, recentDiscovery, education, educationLoading]);
 

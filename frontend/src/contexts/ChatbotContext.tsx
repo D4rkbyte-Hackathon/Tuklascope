@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
 import { useUserEducation } from '../hooks/useUserEducation';
+import { db, auth} from '../database/firebase';
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  getDocs
+} from 'firebase/firestore';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -48,6 +57,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
+    await saveMessageToFirestore(userMessage);
 
     try {
       // Prepare chat history for API (excluding timestamps)
@@ -82,6 +92,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      await saveMessageToFirestore(userMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
@@ -94,8 +105,83 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
       setIsLoading(false);
     }
   };
+  const saveMessageToFirestore = async (message: ChatMessage) => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-  const openChatbot = () => setIsOpen(true);
+    try {
+      await addDoc(collection(db, 'Chatbot-History', user.uid, 'tutorHistory'), {
+        timestamp: serverTimestamp(),
+        role: message.role,
+        parts: message.parts
+      });
+    } catch (error) {
+      console.error("Error saving chat message to Firestore:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchMessagesFromFirestore = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const q = query(
+          collection(db, 'Chatbot-History', user.uid, 'tutorHistory'),
+          orderBy('timestamp', 'asc')
+        );
+
+        const querySnapshot = await getDocs(q);
+        const loadedMessages: ChatMessage[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          loadedMessages.push({
+            role: data.role,
+            parts: data.parts,
+            timestamp: data.timestamp?.toDate?.() || new Date()
+          });
+        });
+
+        setMessages(loadedMessages);
+      } catch (error) {
+        console.error('Error fetching chat history:', error);
+      }
+    };
+
+    fetchMessagesFromFirestore();
+  }, []);
+
+    // const openChatbot = () => setIsOpen(true);
+    const openChatbot = async () => {
+    setIsOpen(true);
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const q = query(
+        collection(db, 'Chatbot-History', user.uid, 'tutorHistory'),
+        orderBy('timestamp', 'asc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const loadedMessages: ChatMessage[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        loadedMessages.push({
+          role: data.role,
+          parts: data.parts,
+          timestamp: data.timestamp?.toDate?.() || new Date()
+        });
+      });
+
+      setMessages(loadedMessages);
+    } catch (error) {
+      console.error('Error fetching chat history on open:', error);
+    }
+  };
   const closeChatbot = () => setIsOpen(false);
   const clearChat = () => setMessages([]);
 

@@ -141,11 +141,11 @@ const ChatbotButton = () => {
                 background: 'none',
                 border: 'none',
                 color: '#fff',
-                fontSize: isMobile ? 28 : 24,
+                fontSize: isMobile ? 20 : 24, // Exactly match TuklasTutor text size on mobile
                 cursor: 'pointer',
                 padding: 0,
-                width: isMobile ? 40 : 32,
-                height: isMobile ? 40 : 32,
+                width: isMobile ? 48 : 32, // Large touch target on mobile
+                height: isMobile ? 48 : 32, // Large touch target on mobile
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
