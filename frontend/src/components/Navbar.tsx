@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut, db, doc, getDoc } from '../database/firebase';
+import LogoClear from '../../images/LogoClear.png';
 
 const gradeLevels = [
   'Senior High (Grades 11-12)',
@@ -135,13 +136,8 @@ const Navbar = () => {
       zIndex: 100
     }}>
       {/* Logo */}
-      <div style={{ 
-        fontWeight: 700, 
-        fontSize: isMobile ? 20 : 28, 
-        color: '#0B3C6A', 
-        marginRight: isMobile ? 16 : 32, 
-        letterSpacing: 1 
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: isMobile ? 20 : 28, color: '#0B3C6A', marginRight: isMobile ? 16 : 32, letterSpacing: 1 }}>
+        <img src={LogoClear} alt="Tuklascope Logo" style={{ height: isMobile ? 32 : 40, width: 'auto', marginRight: 12, verticalAlign: 'middle' }} />
         Tuklascope
       </div>
 
