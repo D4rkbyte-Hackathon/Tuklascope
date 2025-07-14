@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/LoginRegister.css';
+import { fetchSignInMethodsForEmail } from 'firebase/auth';
 // import CardSwap from '../components/CardSwap'; // Skipped for now
 import {auth, db, createUserWithEmailAndPassword, setDoc, doc, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signInWithPopup, getDoc} from '../database/firebase';
 // --- Firebase imports removed ---
@@ -88,9 +89,9 @@ const LoginPage = () => {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Replace with real register logic later
-   try {
     const { email, password, name, surname, city, country, education } = formData;
-
+   try {
+    // Check nya if email kay registered na
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
@@ -116,7 +117,20 @@ const LoginPage = () => {
       education: '',
     });
   } catch (error: any) {
-    alert(`Registration failed: ${error.message}`);
+    if (error.code === 'auth/email-already-in-use') {
+      try {
+        const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+        if (signInMethods.includes('google.com')) {
+          alert('This email is already registered using Google. Please sign in using Google instead.');
+        } else {
+          alert('This email is already in use. Try logging in instead.');
+        }
+      } catch (fetchError: any) {
+        alert('Registration failed while checking sign-in methods: ' + fetchError.message);
+      }
+    } else {
+      alert(`Registration failed: ${error.message}`);
+    }
   }
   };
 
