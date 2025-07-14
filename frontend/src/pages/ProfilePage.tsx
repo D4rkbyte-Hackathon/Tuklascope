@@ -42,6 +42,7 @@ const ProfilePage = () => {
     city: '',
     country: '',
   });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -176,6 +177,15 @@ const ProfilePage = () => {
     navigate('/spark-results', { state: { recentDiscovery: discovery } });
   };
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   if (isLoading) {
     return (
       <>
@@ -207,15 +217,20 @@ const ProfilePage = () => {
     <>
       <Navbar />
       <ChatbotButton />
-      <div style={{ minHeight: '100vh', background: '#fff', padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="profile-main-container" style={{ minHeight: '100vh', background: '#fff', padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ width: '100%', maxWidth: 1400, padding: '0 32px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 36 }}>
+          <div className="profile-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 36 }}>
             <div>
-              <h1 style={{ fontWeight: 800, fontSize: 44, color: '#0B3C6A', marginBottom: 0, letterSpacing: 1 }}>Your Profile</h1>
-              <div style={{ color: '#1F2937', fontSize: 18, marginTop: 4 }}>Track your STEM learning journey</div>
+              <h1 style={{ fontWeight: 800, fontSize: isMobile ? 32 : 44, color: '#0B3C6A', marginBottom: 0, letterSpacing: 1, textAlign: isMobile ? 'center' : undefined, padding: isMobile ? '0 20px' : undefined }}>
+                Your Profile
+              </h1>
+              <div style={{ color: '#1F2937', fontSize: isMobile ? 18 : 18, marginTop: 4, textAlign: isMobile ? 'center' : undefined, padding: isMobile ? '0 20px' : undefined }}>
+                Track your STEM learning journey
+              </div>
             </div>
             {!isEditing ? (
               <button
+                className="profile-edit-btn"
                 onClick={() => setIsEditing(true)}
                 style={{
                   background: '#FF6B2C',
@@ -236,6 +251,7 @@ const ProfilePage = () => {
             ) : (
               <div style={{ display: 'flex', gap: 12 }}>
                 <button
+                  className="profile-save-btn"
                   onClick={handleEditSave}
                   style={{
                     background: '#22C55E',
@@ -254,6 +270,7 @@ const ProfilePage = () => {
                   Save
                 </button>
                 <button
+                  className="profile-cancel-btn"
                   onClick={handleEditCancel}
                   style={{
                     background: '#6B7280',
@@ -274,17 +291,17 @@ const ProfilePage = () => {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+          <div className="profile-cards-container" style={{ display: 'flex', gap: 40, alignItems: 'flex-start', justifyContent: 'flex-start' }}>
             {/* Left: User Card & Location */}
-            <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: 32 }}>
-              <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 320 }}>
+            <div className="profile-left-column" style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: 32 }}>
+              <div className="profile-user-card" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 320 }}>
                 <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#FF6B2C', color: '#fff', fontWeight: 700, fontSize: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
                   {(userData.name && userData.name.trim().length > 0)
                     ? userData.name.trim().charAt(0).toUpperCase()
                     : 'U'}
                 </div>
                 {isEditing ? (
-                  <div style={{ width: '100%', marginBottom: 18 }}>
+                  <div className="profile-form" style={{ width: '100%', marginBottom: 18 }}>
                     <input
                       type="text"
                       value={editForm.name}
@@ -353,7 +370,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Location Information Card */}
-              <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minWidth: 320 }}>
+              <div className="profile-location-card" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minWidth: 320 }}>
                 <div style={{ fontWeight: 700, fontSize: 22, color: '#0B3C6A', marginBottom: 18 }}>Location</div>
                 {isEditing ? (
                   <div style={{ width: '100%' }}>
@@ -410,11 +427,11 @@ const ProfilePage = () => {
             </div>
 
             {/* Right: Skill Progress, Discoveries & Achievements */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 32, minWidth: 400 }}>
-              <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minHeight: 90 }}>
-                <div style={{ fontWeight: 700, fontSize: 26, color: '#1F2937', marginBottom: 16 }}>Skill Progress</div>
+            <div className="profile-right-column" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 32, minWidth: 400 }}>
+              <div className="profile-skill-progress-card" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minHeight: 90 }}>
+                <div className="profile-section-title" style={{ fontWeight: 700, fontSize: 26, color: '#1F2937', marginBottom: 16 }}>Skill Progress</div>
                 {categoryStats.length > 0 ? (
-                  <div style={{ 
+                  <div className="profile-category-stats" style={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
                     gap: 16, 
@@ -423,7 +440,7 @@ const ProfilePage = () => {
                     paddingRight: '8px'
                   }}>
                     {categoryStats.map((category) => (
-                      <div key={category.subject} style={{ 
+                      <div key={category.subject} className="profile-category-card" style={{ 
                         padding: '16px', 
                         background: '#F8FAFC', 
                         borderRadius: 12, 
@@ -466,13 +483,14 @@ const ProfilePage = () => {
                   </div>
                 )}
               </div>
-              <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minHeight: 120 }}>
-                <div style={{ fontWeight: 700, fontSize: 26, color: '#1F2937', marginBottom: 12 }}>Recent Discoveries</div>
+              <div className="profile-discoveries-card" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minHeight: 120 }}>
+                <div className="profile-section-title" style={{ fontWeight: 700, fontSize: 26, color: '#1F2937', marginBottom: 12 }}>Recent Discoveries</div>
                 <RecentDiscoveries onSelect={handleRecentClick} />
               </div>
               {/* Achievements */}
-              <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minWidth: 320 }}>
-                <div style={{ fontWeight: 700, fontSize: 22, color: '#0B3C6A', marginBottom: 18 }}>Recent Achievements</div>
+              <div className="profile-achievements-card" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: 32, minWidth: 320 }}>
+                <div className="profile-section-title" style={{ fontWeight: 700, fontSize: 22, color: '#0B3C6A', marginBottom: 18 }}>Recent Achievements</div>
+                <div className="profile-achievements-row">
                 {recentAchievements.length > 0 ? (
                   recentAchievements.map((achievement, index) => (
                     <div key={achievement.skill_name} style={{ marginBottom: index < recentAchievements.length - 1 ? 18 : 4 }}>
@@ -492,11 +510,104 @@ const ProfilePage = () => {
                     No achievements yet. Start discovering to earn skills!
                   </div>
                 )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Mobile-specific styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .profile-main-container {
+            padding: 24px 12px !important;
+          }
+          .profile-header-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+          .profile-header-row h1 {
+            font-size: 1.5rem !important;
+            padding: 0 8px !important;
+          }
+          .profile-header-row > div:first-child > div {
+            font-size: 0.95rem !important;
+            padding: 0 8px !important;
+          }
+          .profile-header-row > div:last-child {
+            margin-top: 12px !important;
+          }
+          .profile-edit-btn, .profile-save-btn, .profile-cancel-btn {
+            padding: 10px 18px !important;
+            font-size: 15px !important;
+            border-radius: 8px !important;
+          }
+          .profile-form {
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+          .profile-form input, .profile-form select {
+            font-size: 15px !important;
+            padding: 10px !important;
+          }
+          .profile-section-title {
+            font-size: 1rem !important;
+            margin-bottom: 12px !important;
+          }
+          .profile-achievements-row {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .profile-category-stats {
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+          .profile-category-card {
+            width: 100% !important;
+            min-width: 0 !important;
+            margin-bottom: 12px !important;
+          }
+          /* Stack cards vertically on mobile */
+          .profile-cards-container {
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+          .profile-left-column, .profile-right-column {
+            flex: none !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+          .profile-user-card, .profile-location-card, .profile-skill-progress-card, .profile-discoveries-card, .profile-achievements-card {
+            min-width: 0 !important;
+            width: 100% !important;
+            padding: 24px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .profile-header-row h1 {
+            font-size: 1.1rem !important;
+            padding: 0 8px !important;
+            text-align: center !important;
+            line-height: 1.2 !important;
+          }
+          .profile-header-row > div:first-child > div {
+            font-size: 0.85rem !important;
+            padding: 0 8px !important;
+            text-align: center !important;
+            line-height: 1.5 !important;
+          }
+          .profile-section-title {
+            font-size: 0.95rem !important;
+          }
+          .profile-main-container {
+            padding: 16px 6px !important;
+          }
+          .profile-user-card, .profile-location-card, .profile-skill-progress-card, .profile-discoveries-card, .profile-achievements-card {
+            padding: 20px !important;
+          }
+        }
+      `}</style>
     </>
   );
 };

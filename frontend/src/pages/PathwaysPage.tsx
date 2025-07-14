@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar';
 import { useChatbotActions } from '../hooks/useChatbotActions';
+import React, { useState, useEffect } from 'react';
 
 const learningPathways = [
   {
@@ -84,6 +85,15 @@ const learningPathways = [
 
 const PathwaysPage = () => {
   const { openChatbot } = useChatbotActions();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <>
@@ -100,10 +110,10 @@ const PathwaysPage = () => {
         }}
       >
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 400 }}>
-          <h1 style={{ fontSize: 48, fontWeight: 700, color: '#0B3C6A', marginBottom: 16, textAlign: 'center' }}>
+          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, color: '#0B3C6A', marginBottom: 16, textAlign: 'center', padding: isMobile ? '0 20px' : undefined }}>
             Learning <span style={{ color: '#FF6B2C' }}>Pathways</span>
           </h1>
-          <div style={{ color: '#64748B', fontSize: 22, marginBottom: 48, textAlign: 'center', maxWidth: 700, fontWeight: 500 }}>
+          <div style={{ color: '#64748B', fontSize: isMobile ? 18 : 22, marginBottom: 48, textAlign: 'center', maxWidth: 700, fontWeight: 500, padding: isMobile ? '0 20px' : undefined }}>
             Structured learning journeys that elevate the experience from single lessons to genuine skill development.
           </div>
 
