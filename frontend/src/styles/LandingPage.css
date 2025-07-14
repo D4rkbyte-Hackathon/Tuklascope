@@ -77,62 +77,12 @@
     min-height: 60vh;
 }
 
-.hero-background-svg {
+.hero-background-svg,
+.how-it-works-svg,
+.mission-vision-svg {
     display: block;
     width: 100%;
     height: auto;
     object-fit: cover;
     object-position: 50% 80%;
-}
-
-.header-content {
-    position: absolute;
-    top: 50%;
-    left: 15%;
-    transform: translateY(-50%);
-    max-width: 50%;
-    text-align: left;
-    z-index: 2;
-    padding-right: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-}
-
-.header-title {
-    font-family: 'Arial', sans-serif;
-    font-size: 3.5vw;
-    color: #333;
-    line-height: 1.2;
-    margin-bottom: 30px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.get-started-button {
-    background-color: #f59e0b;
-    color: white;
-    padding: 15px 40px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.2em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-.how-it-works-section {
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.how-it-works-svg {
-    display: block;
-    height: auto;
-    margin: 0 auto;
 }

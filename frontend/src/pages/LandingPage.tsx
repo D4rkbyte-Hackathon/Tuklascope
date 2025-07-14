@@ -36,8 +36,12 @@ const LandingPage = () => {
                     className="how-it-works-svg"
                 />
                 </div>
-                <div className="???-section">
-                    {/* next part ari */}
+                <div className="mission-vision-section">
+                <img
+                    src="/images/MissionVision.svg"
+                    alt="Mission Vision Illustration"
+                    className="mission-vision-svg"
+                />
                 </div>
             </div>
 
