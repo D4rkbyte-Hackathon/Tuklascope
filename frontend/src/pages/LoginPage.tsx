@@ -176,7 +176,6 @@ const LoginPage = () => {
                   ></i>
                 </div>
               </div>
-              <button type="button" className="login__forgot" onClick={() => navigate('/forgot-password')}>Forgot your password?</button>
               <button type="submit" className="login__button">Login</button>
             </form>
 

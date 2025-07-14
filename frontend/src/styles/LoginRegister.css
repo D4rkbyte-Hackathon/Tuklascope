@@ -77,15 +77,11 @@ img {
 .login {
   position: relative;
   height: 100vh;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
   background: #fff;
+  padding: 0 2rem;
 }
 
 .login__forms-container {
@@ -95,6 +91,8 @@ img {
   align-items: center;
   position: relative;
   height: 100%;
+  width: 100%;
+  max-width: 380px;
 }
 
 .login__card-swap {
@@ -109,10 +107,10 @@ img {
 }
 
 .login__title {
-  font-size: var(--big-font-size);
+  font-size: 2rem;
   color: var(--title-color);
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .login__box {
@@ -126,7 +124,7 @@ img {
 .login__input {
   background: none;
   width: 100%;
-  padding: 1.5rem 2.5rem 1.5rem 1.25rem;
+  padding: 1rem 1.5rem 1rem 1rem;
   font-weight: var(--font-semi-bold);
   border: 3px solid transparent;
   border-radius: 1rem;
@@ -178,9 +176,9 @@ img {
   background-color: var(--first-color);
   color: var(--white-color);
   font-weight: var(--font-semi-bold);
-  padding-block: 1.5rem;
+  padding-block: 1rem;
   border-radius: 4rem;
-  margin-block: 2rem;
+  margin-block: 1.5rem;
   cursor: pointer;
   transition: background-color .4s, box-shadow .4s;
 }

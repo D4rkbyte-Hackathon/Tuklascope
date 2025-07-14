@@ -206,7 +206,16 @@ const SparkResultsPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
             {/* --- IMAGE (Centered) --- */}
             <div style={{ width: '100%', maxWidth: 500 }}>
-                {image && <img src={recentDiscovery ? recentDiscovery.image : image} alt="Your discovery" style={{ width: '100%', borderRadius: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}/>}
+                {(() => {
+                  const displayImage = recentDiscovery?.image || image || null;
+                  if (displayImage) {
+                    return <img src={displayImage} alt="Your discovery" style={{ width: '100%', borderRadius: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}/>;
+                  } else {
+                    return <div style={{ width: '100%', height: 240, background: '#F3F4F6', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: 20 }}>
+                      No image available
+                    </div>;
+                  }
+                })()}
             </div>
 
             {/* --- IDENTIFICATION PANEL (Below Image) --- */}
