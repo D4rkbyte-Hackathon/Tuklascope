@@ -92,7 +92,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      await saveMessageToFirestore(userMessage);
+      await saveMessageToFirestore(aiMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
