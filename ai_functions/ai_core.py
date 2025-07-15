@@ -166,7 +166,7 @@ def get_ai_tutor_response(user_question: str, grade_level: str, chat_history: li
         current_date_time=datetime.now().strftime("%A, %B %d, %Y")
     )
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(formatted_prompt, request_options={"timeout": 60})
         return response.text.strip()
     except Exception as e:

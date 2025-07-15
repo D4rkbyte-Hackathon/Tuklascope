@@ -9,9 +9,10 @@ interface Skill {
 interface AchievementModalProps {
   skills: Skill[];
   onClose: () => void;
+  customIcon?: string;
 }
 
-export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onClose }) => {
+export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onClose, customIcon}) => {
   // fixed to 25 first-pwede railisan
   const XP_PER_SKILL = 25;
   const [isSaving, setIsSaving] = useState(false);
@@ -19,6 +20,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onCl
 
   // Save skills to database when modal opens
   useEffect(() => {
+    if (!customIcon) {
     const saveSkills = async () => {
       if (auth.currentUser) {
         setIsSaving(true);
@@ -29,6 +31,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onCl
     };
     
     saveSkills();
+  }
   }, [skills]);
 
   return (
@@ -148,21 +151,30 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({ skills, onCl
           }
         `}</style>
         
-        <h2 style={{ fontSize: 36, margin: 0, color: '#FFD700' }}>🏆 Achievement Unlocked!</h2>
+        <h2 style={{ fontSize: 36, margin: 0, color: '#FFD700' }}>{customIcon ? customIcon : '🏆'} {customIcon ? 'Badge Unlocked!' : 'Achievement Unlocked!'}</h2>
         <p style={{ fontSize: 18, opacity: 0.9, marginTop: 8 }}>
           {isSaving ? 'Saving your new skills...' : 'You\'ve gained new knowledge from your discovery!'}
         </p>
         
         <div className="achievement-skills-container" style={{ margin: '32px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {skills.map(skill => (
-            <div key={skill.skill_name} className="achievement-skill-item" style={{ background: 'rgba(255, 255, 255, 0.1)', padding: '12px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="achievement-skill-name" style={{ fontSize: 18, fontWeight: '500' }}>{skill.skill_name}</span>
-              <span className="achievement-skill-xp" style={{ background: '#22C55E', padding: '4px 12px', borderRadius: 16, fontSize: 16, fontWeight: 'bold' }}>
-                +{XP_PER_SKILL} XP
-              </span>
-            </div>
-          ))}
-        </div>
+  {skills.map(item => (
+    <div key={item.skill_name} className="achievement-skill-item" style={{ background: 'rgba(255, 255, 255, 0.1)', padding: '12px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ textAlign: 'left' }}>
+        <span className="achievement-skill-name" style={{ fontSize: 18, fontWeight: '600' }}>{item.skill_name}</span>
+        {/* If it's a badge, show its description (which is passed in the 'category' field) */}
+        {customIcon && (
+            <p style={{ fontSize: 14, opacity: 0.8, margin: '4px 0 0 0' }}>{item.category}</p>
+        )}
+      </div>
+      {/* Only show the "+XP" if it's a skill, not a badge */}
+      {!customIcon && (
+        <span className="achievement-skill-xp" style={{ background: '#22C55E', padding: '4px 12px', borderRadius: 16, fontSize: 16, fontWeight: 'bold' }}>
+          +{XP_PER_SKILL} XP
+        </span>
+      )}
+    </div>
+  ))}
+</div>
 
         <button className="achievement-button" onClick={onClose} style={{
           background: '#FF6B2C', color: '#fff', fontWeight: 700, fontSize: 20,

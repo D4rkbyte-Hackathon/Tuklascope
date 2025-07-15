@@ -7,11 +7,12 @@ const CameraIcon = () => <svg width="48" height="48" fill="none" viewBox="0 0 24
 interface DiscoveryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onDiscoveryStart?: (image: string) => void; 
 }
 
 type ModalView = 'choice' | 'camera' | 'confirm';
 
-export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose }) => {
+export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose, onDiscoveryStart}) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [view, setView] = useState<ModalView>('choice');
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -98,10 +99,19 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ isOpen, onClose 
 
   const handleConfirmImage = () => {
     if (selectedImage) {
-      navigate('/spark-results', { state: { image: selectedImage } });
+      // If the onDiscoveryStart function was provided (i.e., from the Pathways page),
+      // call it and pass the image data back to the parent.
+      if (onDiscoveryStart) {
+        onDiscoveryStart(selectedImage);
+      } else {
+        // Otherwise, use the original navigation behavior for normal discoveries.
+        navigate('/spark-results', { state: { image: selectedImage } });
+      }
+      // Close the modal in either case.
       handleClose();
     }
   };
+
 
   const resetSelection = () => {
     setSelectedImage(null);

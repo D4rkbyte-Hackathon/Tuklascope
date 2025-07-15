@@ -55,15 +55,19 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) =>
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // Create the new, complete message list immediately
+    const updatedMessages = [...messages, userMessage];
+
+    // Update the UI state and save to Firestore
+    setMessages(updatedMessages);
     setIsLoading(true);
     await saveMessageToFirestore(userMessage);
 
     try {
-      // Prepare chat history for API (excluding timestamps)
-      const chatHistory = messages.map(msg => ({
+      // CORRECTED: Create chat history from the *updated* messages list
+      const chatHistory = updatedMessages.map(msg => ({
         role: msg.role,
-        parts: msg.parts
+        parts: msg.parts // Use 'parts' to match your ChatMessage interface
       }));
 
       const response = await fetch('http://localhost:8000/api/tutor', {

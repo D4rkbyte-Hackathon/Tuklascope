@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown'; //para formatting atong mga double a
 import { getAuth, saveUserDiscovery, updateUserStats, saveUserSkills } from '../database/firebase';
 import { useUserEducation } from '../hooks/useUserEducation';
 import { DiscoveryModal } from '../components/DiscoveryModal';
+import { ALL_BADGES, Badge } from '../database/gamification';
+
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -35,19 +37,45 @@ interface FullDiscoveryResponse {
     skills: SkillsResponse;
 }
 
-const LoadingIndicator = ({ text }: { text: string }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '300px', gap: '20px' }}>
-    <div style={{
-      border: '8px solid #f3f3f3', borderTop: '8px solid #FF6B2C',
-      borderRadius: '50%', width: '60px', height: '60px',
-      animation: 'spin 1.2s linear infinite'
-    }}></div>
-    <p style={{ color: '#0B3C6A', fontWeight: 'bold', fontSize: '18px' }}>{text}</p>
-    <style>{`
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    `}</style>
-  </div>
-);
+// Multi-Stage Loading Indicator
+const loadingStages = [
+  "Warming up the AI brain... ",
+  "Analyzing image pixels... ",
+  "Identifying the object... ",
+  "Searching STEM knowledge base... ",
+  "Crafting educational content... ",
+  "Extracting key skills... ",
+  "Almost there! Just a moment... "
+];
+
+const LoadingIndicator = () => {
+  const [currentStage, setCurrentStage] = useState(0);
+
+  useEffect(() => {
+    // This effect will cycle through the loading messages
+    const interval = setInterval(() => {
+      setCurrentStage((prevStage) => (prevStage + 1) % loadingStages.length);
+    }, 2500); // Change message every 2.5 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '300px', gap: '20px' }}>
+      <div style={{
+        border: '8px solid #f3f3f3', borderTop: '8px solid #FF6B2C',
+        borderRadius: '50%', width: '60px', height: '60px',
+        animation: 'spin 1.2s linear infinite'
+      }}></div>
+      <p style={{ color: '#0B3C6A', fontWeight: 'bold', fontSize: '18px', textAlign: 'center' }}>
+        {loadingStages[currentStage]}
+      </p>
+      <style>{`
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+};
 
 const ErrorDisplay = ({ message, onRetry }: { message: string, onRetry: () => void }) => (
   <div style={{ padding: '30px', background: '#FEF2F2', borderRadius: 16, border: '2px solid #DC2626', textAlign: 'center' }}>
@@ -62,7 +90,7 @@ const ErrorDisplay = ({ message, onRetry }: { message: string, onRetry: () => vo
 
 const SparkResultsPage = () => {
   const location = useLocation();
-  const { image, recentDiscovery } = location.state || {}; // The base64 image string or recent discovery
+  const { image, recentDiscovery, questId} = location.state || {}; // The base64 image string or recent discovery
   const { education, loading: educationLoading } = useUserEducation();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +99,7 @@ const SparkResultsPage = () => {
   const [activeTab, setActiveTab] = useState<'facts' | 'concepts' | 'project'>('facts');
   const [showAchievements, setShowAchievements] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
+  const [awardedBadge, setAwardedBadge] = useState<Badge | null>(null);
 
   const fetchFullDiscovery = async () => {
     if (!image) {
@@ -174,6 +203,25 @@ const SparkResultsPage = () => {
     }
   }, [image, recentDiscovery, education, educationLoading]);
 
+  useEffect(() => {
+  // If the page was loaded with the specific questId from the Pathways page...
+  if (questId === 'quest_garden_safari') {
+    // Find the corresponding badge from our data file.
+    const badge = ALL_BADGES.find(b => b.id === 'badge_garden_explorer');
+    if (badge) {
+      // Trigger the modal to show the badge.
+      setAwardedBadge(badge);
+
+      // Save the earned badge ID to the browser's local storage to make it permanent.
+      const earnedBadges: string[] = JSON.parse(localStorage.getItem('earnedBadges') || '[]');
+      if (!earnedBadges.includes(badge.id)) {
+        earnedBadges.push(badge.id);
+        localStorage.setItem('earnedBadges', JSON.stringify(earnedBadges));
+      }
+    }
+  }
+}, [questId]); // This effect runs only when questId changes.
+
   const renderStringWithMarkdown = (text: string) => {
     return text.split('\n').map((line, index) => {
       if (line.startsWith('###')) {
@@ -204,13 +252,20 @@ const SparkResultsPage = () => {
   return (
     <>
       <Navbar />
+      {awardedBadge && (
+        <AchievementModal
+          skills={[{ skill_name: awardedBadge.name, category: awardedBadge.description }]}
+          onClose={() => setAwardedBadge(null)}
+          customIcon={awardedBadge.icon}
+        />
+      )}
       
       {showAchievements && fullResult?.skills?.normalized_skills && (
         <AchievementModal skills={fullResult.skills.normalized_skills} onClose={() => setShowAchievements(false)} />
       )}
 
       <div style={{ padding: '40px 16px', maxWidth: 900, margin: '0 auto' }}>
-        {isLoading && <LoadingIndicator text="Analyzing your discovery..." />}
+        {isLoading && <LoadingIndicator />}
         {error && <ErrorDisplay message={error} onRetry={fetchFullDiscovery} />}
         
         {fullResult && (
